@@ -1,0 +1,13 @@
+Django
+django-allauth
+python-decouple
+requests
+django-crispy-forms
+crispy-bootstrap5
+Pillow
+gunicorn
+whitenoise
+psycopg2-binary
+python-dotenv
+dj-database-url
+django-extensions
