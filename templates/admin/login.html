@@ -1,0 +1,163 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .login {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+    }
+    
+    .login #container {
+        width: 400px;
+        max-width: 90%;
+        padding: 2rem;
+        background: var(--bg-secondary);
+        border-radius: 1rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .login #header {
+        background: transparent !important;
+        border: none !important;
+        padding: 0 0 1.5rem 0 !important;
+        text-align: center;
+    }
+    
+    .login #header h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #c9d1d9, #58a6ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .login .form-row {
+        margin-bottom: 1rem;
+    }
+    
+    .login label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .login input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        color: var(--text-primary);
+        font-size: 0.875rem;
+    }
+    
+    .login input:focus {
+        border-color: var(--accent);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+    }
+    
+    .login .submit-row {
+        padding: 1rem 0 0 0 !important;
+        margin: 0 !important;
+        border: none !important;
+    }
+    
+    .login .submit-row input {
+        width: 100%;
+        background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+        color: white;
+        border: none;
+        padding: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .login .submit-row input:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(88, 166, 255, 0.3);
+    }
+    
+    .login .errornote {
+        background: rgba(248, 81, 73, 0.1);
+        border-left: 4px solid #f85149;
+        color: #f85149;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .login .password-reset-link {
+        text-align: center;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .login .password-reset-link a {
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        text-decoration: none;
+    }
+    
+    .login .password-reset-link a:hover {
+        color: var(--accent);
+    }
+</style>
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} login{% endblock %}
+
+{% block usertools %}{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block nav-sidebar %}{% endblock %}
+
+{% block content_title %}{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div class="login">
+    <div id="container">
+        <div id="header">
+            <h1>{% trans 'Portfolio Admin Login' %}</h1>
+        </div>
+        <div id="content-main">
+            <form action="{{ app_path }}" method="post" id="login-form">
+                {% csrf_token %}
+                <div class="form-row">
+                    {{ form.username.errors }}
+                    <label for="id_username">{% trans 'Username:' %}</label>
+                    <input type="text" name="username" id="id_username" autofocus autocapitalize="none" autocomplete="username" required>
+                </div>
+                <div class="form-row">
+                    {{ form.password.errors }}
+                    <label for="id_password">{% trans 'Password:' %}</label>
+                    <input type="password" name="password" id="id_password" autocomplete="current-password" required>
+                    <input type="hidden" name="next" value="{{ next }}">
+                </div>
+                {% url 'admin_password_reset' as password_reset_url %}
+                {% if password_reset_url %}
+                <div class="password-reset-link">
+                    <a href="{{ password_reset_url }}">{% trans 'Forgotten your password or username?' %}</a>
+                </div>
+                {% endif %}
+                <div class="submit-row">
+                    <input type="submit" value="{% trans 'Log in' %}">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
