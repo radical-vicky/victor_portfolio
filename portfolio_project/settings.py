@@ -25,8 +25,15 @@ SECRET_KEY = 'django-insecure-sn%+$25qi^3ewztyy=i2m_!4)y7=8jf+ed&5n+bbpzcyl4vq8l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '.onrender.com',  # Allows any subdomain on onrender.com
+    'galaxystore1.onrender.com',  # Your actual Render domain
+    'cryptoconsultx-3.onrender.com',
+    'signalx.render.com',
+    'galaxy-store.onrender.com',  # Alternative domain
+]
 
 # Application definition
 
