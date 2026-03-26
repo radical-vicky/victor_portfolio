@@ -1,0 +1,1353 @@
+{% extends 'portfolio/base.html' %}
+{% load static %}
+
+{% block title %}{% if about %}{{ about.name }} | Portfolio{% else %}Portfolio{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Container width control */
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        width: 100%;
+    }
+    
+    /* Section spacing */
+    section {
+        padding: 5rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    section:last-child {
+        border-bottom: none;
+    }
+    
+    .section-title {
+        margin-bottom: 3rem;
+        text-align: center;
+    }
+    
+    .section-title h2 {
+        font-size: clamp(1.75rem, 4vw, 2.25rem);
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: var(--text-primary);
+    }
+    
+    .section-title p {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    /* Hero Section with Background Image */
+    .hero {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        position: relative;
+        padding: 6rem 0;
+        margin-top: 0;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+    
+    /* Dark overlay for better text readability */
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(13, 17, 23, 0.85), rgba(13, 17, 23, 0.9));
+        z-index: 0;
+    }
+    
+    .hero .container {
+        text-align: center;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .hero h2 {
+        font-size: clamp(2.5rem, 6vw, 4rem);
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .hero p {
+        font-size: clamp(1.125rem, 4vw, 1.5rem);
+        color: var(--text-secondary);
+        text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+    }
+    
+    .typed-text {
+        color: var(--accent);
+        border-right: 2px solid var(--accent);
+        padding-right: 0.25rem;
+    }
+    
+    /* About Section */
+    .about-grid {
+        display: grid;
+        grid-template-columns: 0.8fr 1.2fr;
+        gap: 4rem;
+        align-items: start;
+        margin: 0 auto;
+    }
+    
+    .about-img {
+        position: sticky;
+        top: 2rem;
+    }
+    
+    .about-img img,
+    .about-img-placeholder {
+        width: 100%;
+        max-width: 320px;
+        height: auto;
+        border-radius: 1.5rem;
+        object-fit: cover;
+        aspect-ratio: 1 / 1;
+        border: 2px solid var(--border-color);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        margin: 0 auto;
+        transition: transform 0.3s ease;
+    }
+    
+    .about-img img:hover {
+        transform: scale(1.02);
+    }
+    
+    .about-img-placeholder {
+        background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .about-img-placeholder i {
+        font-size: 5rem;
+        color: var(--text-secondary);
+    }
+    
+    .about-content {
+        width: 100%;
+    }
+    
+    .about-content h2 {
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        color: var(--text-primary);
+        line-height: 1.3;
+        word-break: break-word;
+    }
+    
+    .about-bio {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        line-height: 1.7;
+        margin-bottom: 2rem;
+    }
+    
+    /* Resume Download Button */
+    .resume-download {
+        margin-bottom: 2rem;
+        text-align: left;
+    }
+    
+    .resume-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+        color: white;
+        padding: 0.875rem 1.75rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .resume-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(88, 166, 255, 0.4);
+    }
+    
+    .resume-badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.2rem 0.5rem;
+        border-radius: 1rem;
+        font-size: 0.7rem;
+        font-weight: 500;
+        margin-left: 0.5rem;
+    }
+    
+    .resume-btn i {
+        font-size: 1.1rem;
+    }
+    
+    /* Info Grid */
+    .about-info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        width: 100%;
+    }
+    
+    .info-column {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--bg-tertiary);
+        border-radius: 1rem;
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-color);
+        width: 100%;
+    }
+    
+    .info-item:hover {
+        transform: translateX(5px);
+        background: var(--bg-secondary);
+        border-color: var(--accent);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .info-icon {
+        width: 48px;
+        height: 48px;
+        background: var(--bg-secondary);
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+    }
+    
+    .info-icon i {
+        font-size: 1.35rem;
+        color: var(--accent);
+        transition: all 0.3s ease;
+    }
+    
+    .info-item:hover .info-icon {
+        background: var(--accent);
+    }
+    
+    .info-item:hover .info-icon i {
+        color: white;
+    }
+    
+    .info-details {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        min-width: 0;
+    }
+    
+    .info-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+    
+    .info-value-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--text-primary);
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        word-break: break-word;
+        flex-wrap: wrap;
+        line-height: 1.4;
+    }
+    
+    .info-value-link:hover {
+        color: var(--accent);
+    }
+    
+    .link-text {
+        max-width: 100%;
+        overflow-wrap: break-word;
+        word-break: break-all;
+        white-space: normal;
+    }
+    
+    .link-icon {
+        font-size: 0.75rem;
+        opacity: 0;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+        color: var(--accent);
+    }
+    
+    .info-value-link:hover .link-icon {
+        opacity: 1;
+        transform: translateX(2px);
+    }
+    
+    .info-value {
+        font-size: 0.875rem;
+        color: var(--text-primary);
+        font-weight: 500;
+        word-break: break-word;
+        line-height: 1.4;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, var(--accent-green) 0%, #1f6e43 100%);
+        color: white;
+        padding: 0.35rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        letter-spacing: 0.3px;
+        white-space: nowrap;
+    }
+    
+    /* Tags Section */
+    .about-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.85rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-color);
+        width: 100%;
+    }
+    
+    .tag {
+        background: var(--bg-tertiary);
+        color: var(--text-secondary);
+        padding: 0.6rem 1.2rem;
+        border-radius: 2rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-color);
+        cursor: default;
+    }
+    
+    .tag:hover {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+        transform: translateY(-2px);
+    }
+    
+    /* Stats Section */
+    .stats {
+        background: var(--bg-secondary);
+        padding: 5rem 0;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2.5rem;
+        text-align: center;
+    }
+    
+    .stats-item {
+        padding: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .stats-item:hover {
+        transform: translateY(-5px);
+    }
+    
+    .stats-item i {
+        font-size: 2.5rem;
+        color: var(--accent);
+        margin-bottom: 1rem;
+        display: inline-block;
+    }
+    
+    .stats-item .stat-number {
+        font-size: clamp(2rem, 5vw, 2.5rem);
+        font-weight: 700;
+        color: var(--text-primary);
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stats-item p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    /* Skills Section */
+    .skills-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .progress {
+        margin-bottom: 1.75rem;
+        width: 100%;
+    }
+    
+    .skill {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .progress-bar-wrap {
+        background: var(--bg-tertiary);
+        height: 8px;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .progress-bar {
+        background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+        height: 100%;
+        border-radius: 4px;
+        width: 0%;
+        transition: width 1s ease;
+    }
+    
+    /* Projects Section */
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 2rem;
+    }
+    
+    .project-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        overflow: hidden;
+        transition: all 0.3s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .project-card:hover {
+        transform: translateY(-6px);
+        border-color: var(--accent);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+    
+    .project-image {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        background: var(--bg-tertiary);
+    }
+    
+    .project-content {
+        padding: 1.75rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .project-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        word-break: break-word;
+        color: var(--text-primary);
+    }
+    
+    .project-description {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        margin-bottom: 1.25rem;
+        line-height: 1.6;
+        flex: 1;
+    }
+    
+    .project-tech {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        margin-bottom: 1.25rem;
+    }
+    
+    .tech-tag {
+        background: var(--bg-tertiary);
+        padding: 0.3rem 0.85rem;
+        border-radius: 2rem;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .tech-tag:hover {
+        background: var(--accent);
+        color: white;
+    }
+    
+    .project-links {
+        display: flex;
+        gap: 1.25rem;
+        flex-wrap: wrap;
+        margin-top: 0.5rem;
+    }
+    
+    .project-links a {
+        color: var(--accent);
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: opacity 0.2s;
+    }
+    
+    .project-links a:hover {
+        text-decoration: underline;
+        opacity: 0.8;
+    }
+    
+    /* Contact Section */
+    .contact-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 4rem;
+    }
+    
+    .contact-info {
+        background: var(--bg-secondary);
+        padding: 2rem;
+        border-radius: 1.5rem;
+        border: 1px solid var(--border-color);
+    }
+    
+    .contact-info .info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding: 0;
+        background: transparent;
+        border: none;
+    }
+    
+    .contact-info .info-item:hover {
+        transform: none;
+        background: transparent;
+    }
+    
+    .contact-info .info-item i {
+        font-size: 1.5rem;
+        color: var(--accent);
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg-tertiary);
+        border-radius: 0.75rem;
+        flex-shrink: 0;
+        transition: all 0.3s ease;
+    }
+    
+    .contact-info .info-item:hover i {
+        background: var(--accent);
+        color: white;
+    }
+    
+    .contact-info .info-item h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+    
+    .contact-info .info-item p {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        word-break: break-word;
+        line-height: 1.5;
+    }
+    
+    /* Resume Button in Contact Section */
+    .resume-download-contact {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .resume-btn-contact {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        padding: 0.875rem 1.5rem;
+        border-radius: 1rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-color);
+        width: 100%;
+    }
+    
+    .resume-btn-contact:hover {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+        transform: translateY(-2px);
+    }
+    
+    .resume-btn-contact i {
+        font-size: 1.2rem;
+    }
+    
+    .contact-form {
+        background: var(--bg-secondary);
+        padding: 2rem;
+        border-radius: 1.5rem;
+        border: 1px solid var(--border-color);
+    }
+    
+    .contact-form .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .contact-form input,
+    .contact-form textarea {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        border-radius: 0.75rem;
+        color: var(--text-primary);
+        font-family: inherit;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+    
+    .contact-form input:focus,
+    .contact-form textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+    }
+    
+    .contact-form button {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+        color: white;
+        border: none;
+        padding: 0.875rem 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        width: 100%;
+    }
+    
+    .contact-form button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(88, 166, 255, 0.3);
+    }
+    
+    /* View All Projects Button */
+    .view-all-btn {
+        text-align: center;
+        margin-top: 3rem;
+    }
+    
+    .view-all-btn .btn {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+        padding: 0.75rem 2rem;
+        border-radius: 2rem;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .view-all-btn .btn:hover {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+        transform: translateY(-2px);
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+        .container {
+            padding: 0 1.5rem;
+        }
+        
+        section {
+            padding: 4rem 0;
+        }
+        
+        .about-grid {
+            gap: 2.5rem;
+        }
+        
+        .contact-grid {
+            gap: 2.5rem;
+        }
+        
+        .about-info-grid {
+            gap: 1rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .container {
+            padding: 0 1.25rem;
+        }
+        
+        section {
+            padding: 3rem 0;
+        }
+        
+        .section-title {
+            margin-bottom: 2rem;
+        }
+        
+        .about-grid {
+            grid-template-columns: 1fr;
+            text-align: center;
+            gap: 2rem;
+        }
+        
+        .about-img {
+            position: static;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .about-img img,
+        .about-img-placeholder {
+            max-width: 260px;
+        }
+        
+        .resume-download {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .resume-btn {
+            width: auto;
+            justify-content: center;
+        }
+        
+        .about-info-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .info-item {
+            justify-content: flex-start;
+            text-align: left;
+        }
+        
+        .info-item:hover {
+            transform: translateX(0);
+        }
+        
+        .skills-content {
+            gap: 1rem;
+        }
+        
+        .contact-grid {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        
+        .projects-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .about-tags {
+            justify-content: center;
+        }
+        
+        .tag {
+            font-size: 0.8rem;
+            padding: 0.5rem 1rem;
+        }
+        
+        .view-all-btn {
+            margin-top: 2rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .container {
+            padding: 0 1rem;
+        }
+        
+        section {
+            padding: 2.5rem 0;
+        }
+        
+        .hero {
+            padding: 4rem 0;
+            min-height: auto;
+        }
+        
+        .hero h2 {
+            font-size: 2rem;
+        }
+        
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .info-item {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 1rem;
+        }
+        
+        .info-icon {
+            margin-bottom: 0.75rem;
+        }
+        
+        .info-details {
+            align-items: center;
+        }
+        
+        .info-value-link {
+            justify-content: center;
+        }
+        
+        .status-badge {
+            white-space: normal;
+            text-align: center;
+        }
+        
+        .about-tags {
+            gap: 0.6rem;
+        }
+        
+        .tag {
+            font-size: 0.7rem;
+            padding: 0.4rem 0.9rem;
+            white-space: normal;
+            text-align: center;
+        }
+        
+        .contact-info,
+        .contact-form {
+            padding: 1.5rem;
+        }
+        
+        .resume-btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .resume-btn-contact {
+            padding: 0.75rem 1.25rem;
+            font-size: 0.85rem;
+        }
+        
+        .project-links {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section with Background Image from Database -->
+<section id="hero" class="hero" style="
+    {% if about and about.hero_background %}
+        background-image: linear-gradient(135deg, rgba(13, 17, 23, 0.7), rgba(13, 17, 23, 0.85)), url('{{ about.hero_background.url }}');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    {% else %}
+        background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    {% endif %}
+">
+    <div class="container">
+        <h2>{% if about %}{{ about.name }}{% else %}Portfolio{% endif %}</h2>
+        <p>I'm 
+            <span class="typed-text" id="typed"></span>
+            <span class="cursor">|</span>
+        </p>
+    </div>
+</section>
+
+<!-- About Section -->
+<section id="about">
+    <div class="container">
+        <div class="section-title">
+            <h2>About</h2>
+            <p>Professional overview and background</p>
+        </div>
+        
+        <div class="about-grid">
+            <div class="about-img">
+                {% if about and about.profile_image %}
+                    <img src="{{ about.profile_image.url }}" alt="{{ about.name }}">
+                {% else %}
+                    <div class="about-img-placeholder">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="about-content">
+                <h2>{% if about %}{{ about.title }}{% else %}IT Specialist, Networking Engineer, Programmer, Cyber Security Specialist{% endif %}</h2>
+                <p class="about-bio">
+                    {% if about %}
+                        {{ about.bio|truncatechars:300 }}
+                    {% else %}
+                        I love programming. Passionate about technology and security, dedicated to creating innovative solutions 
+                        that make a difference. With expertise in multiple domains, I bring a comprehensive approach to problem-solving.
+                    {% endif %}
+                </p>
+                
+                <!-- Resume Download Button -->
+                <div class="resume-download">
+                    <a href="{% if about and about.resume_file %}{{ about.resume_file.url }}{% else %}#{% endif %}" class="resume-btn" {% if about and about.resume_file %}download{% endif %}>
+                        <i class="bi bi-download"></i>
+                        Download Resume
+                        <span class="resume-badge">PDF</span>
+                    </a>
+                </div>
+                
+                <div class="about-info-grid">
+                    <!-- Column 1: Contact Information -->
+                    <div class="info-column">
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="bi bi-envelope-fill"></i>
+                            </div>
+                            <div class="info-details">
+                                <span class="info-label">EMAIL</span>
+                                <a href="mailto:{% if about and about.email %}{{ about.email }}{% else %}entrepreneuridirectional@gmail.com{% endif %}" class="info-value-link">
+                                    {% if about and about.email %}{{ about.email }}{% else %}entrepreneuridirectional@gmail.com{% endif %}
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="bi bi-telephone-fill"></i>
+                            </div>
+                            <div class="info-details">
+                                <span class="info-label">PHONE</span>
+                                <a href="tel:{% if about and about.phone %}{{ about.phone }}{% else %}0717140342{% endif %}" class="info-value-link">
+                                    {% if about and about.phone %}{{ about.phone }}{% else %}0717140342{% endif %}
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="bi bi-geo-alt-fill"></i>
+                            </div>
+                            <div class="info-details">
+                                <span class="info-label">LOCATION</span>
+                                <span class="info-value">{% if about and about.location %}{{ about.location }}{% else %}Kisumu, Kenya{% endif %}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Column 2: Social & Professional Links -->
+                    <div class="info-column">
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="bi bi-github"></i>
+                            </div>
+                            <div class="info-details">
+                                <span class="info-label">GITHUB</span>
+                                <a href="{% if about and about.github %}{{ about.github }}{% else %}https://github.com/radical-vicky{% endif %}" class="info-value-link" target="_blank" rel="noopener noreferrer">
+                                    <span class="link-text">
+                                        {% if about and about.github %}
+                                            {{ about.github|cut:"https://"|cut:"http://"|truncatechars:30 }}
+                                        {% else %}
+                                            github.com/radical-vicky
+                                        {% endif %}
+                                    </span>
+                                    <i class="bi bi-box-arrow-up-right link-icon"></i>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="bi bi-linkedin"></i>
+                            </div>
+                            <div class="info-details">
+                                <span class="info-label">LINKEDIN</span>
+                                <a href="{% if about and about.linkedin %}{{ about.linkedin }}{% else %}#{% endif %}" class="info-value-link" target="_blank" rel="noopener noreferrer">
+                                    <span class="link-text">
+                                        {% if about and about.linkedin %}
+                                            {{ about.linkedin|cut:"https://"|cut:"http://"|truncatechars:30 }}
+                                        {% else %}
+                                            Connect on LinkedIn
+                                        {% endif %}
+                                    </span>
+                                    <i class="bi bi-box-arrow-up-right link-icon"></i>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="bi bi-briefcase-fill"></i>
+                            </div>
+                            <div class="info-details">
+                                <span class="info-label">AVAILABILITY</span>
+                                <span class="status-badge">Available for work</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="about-tags">
+                    <span class="tag">IT Specialist</span>
+                    <span class="tag">Networking Engineer</span>
+                    <span class="tag">Programmer</span>
+                    <span class="tag">Cyber Security Specialist</span>
+                </div>
+                
+                <!-- Read More About Me Button -->
+                <div style="margin-top: 1.5rem;">
+                    <a href="{% url 'about' %}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                        Read More About Me <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section id="stats" class="stats">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stats-item">
+                <i class="bi bi-emoji-smile"></i>
+                <span class="stat-number" data-count="{{ total_testimonials|default:0 }}">0</span>
+                <p>Happy Clients</p>
+            </div>
+            <div class="stats-item">
+                <i class="bi bi-journal-richtext"></i>
+                <span class="stat-number" data-count="{{ total_projects|default:0 }}">0</span>
+                <p>Projects Completed</p>
+            </div>
+            <div class="stats-item">
+                <i class="bi bi-code-square"></i>
+                <span class="stat-number" data-count="{{ total_skills|default:0 }}">0</span>
+                <p>Technical Skills</p>
+            </div>
+            <div class="stats-item">
+                <i class="bi bi-award"></i>
+                <span class="stat-number" data-count="{{ total_projects|default:0 }}">0</span>
+                <p>Years Experience</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Skills Section -->
+<section id="skills">
+    <div class="container">
+        <div class="section-title">
+            <h2>Skills</h2>
+            <p>Technical expertise and proficiency</p>
+        </div>
+        
+        <div class="skills-content">
+            {% if skills %}
+                {% for skill in skills %}
+                <div class="progress">
+                    <div class="skill">
+                        <span>{{ skill.name }}</span>
+                        <span>{{ skill.proficiency }}%</span>
+                    </div>
+                    <div class="progress-bar-wrap">
+                        <div class="progress-bar" data-width="{{ skill.proficiency }}"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="progress" style="text-align: center;">
+                    <p>No skills added yet. Add skills in the admin panel.</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- View All Skills Button -->
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="{% url 'about' %}#skills" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                View All Skills <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Projects Section -->
+<section id="projects">
+    <div class="container">
+        <div class="section-title">
+            <h2>Featured Projects</h2>
+            <p>Selected work and case studies</p>
+        </div>
+        
+        <div class="projects-grid">
+            {% for project in featured_projects %}
+            <div class="project-card" onclick="window.location.href='{% url 'project_detail' project.id %}'">
+                {% if project.image %}
+                <img src="{{ project.image.url }}" alt="{{ project.title }}" class="project-image">
+                {% else %}
+                <div class="project-image" style="background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-folder" style="font-size: 3rem; color: var(--text-secondary);"></i>
+                </div>
+                {% endif %}
+                <div class="project-content">
+                    <h3 class="project-title">{{ project.title }}</h3>
+                    <p class="project-description">{{ project.description|truncatechars:100 }}</p>
+                    <div class="project-tech">
+                        {% if project.technologies %}
+                            {% with techs=project.technologies|stringformat:"s" %}
+                                {% for tech in techs.split|slice:":3" %}
+                                    {% if tech != "," and tech != "" %}
+                                        <span class="tech-tag">{{ tech|cut:","|truncatechars:15 }}</span>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endwith %}
+                        {% endif %}
+                    </div>
+                    <div class="project-links" onclick="event.stopPropagation();">
+                        {% if project.github_link %}
+                        <a href="{{ project.github_link }}" target="_blank">Source code</a>
+                        {% endif %}
+                        {% if project.live_link %}
+                        <a href="{{ project.live_link }}" target="_blank">Live demo</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="project-card" style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+                <p>Projects will appear here</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if featured_projects %}
+        <div class="view-all-btn">
+            <a href="{% url 'projects' %}" class="btn">
+                View All Projects <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact">
+    <div class="container">
+        <div class="section-title">
+            <h2>Contact</h2>
+            <p>Get in touch for opportunities</p>
+        </div>
+        
+        <div class="contact-grid">
+            <div class="contact-info">
+                <div class="info-item">
+                    <i class="bi bi-geo-alt"></i>
+                    <div>
+                        <h3>Location</h3>
+                        <p>{% if about and about.location %}{{ about.location }}{% else %}Kisumu, Kenya{% endif %}</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="bi bi-envelope"></i>
+                    <div>
+                        <h3>Email</h3>
+                        <p>{% if about and about.email %}{{ about.email }}{% else %}entrepreneuridirectional@gmail.com{% endif %}</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="bi bi-github"></i>
+                    <div>
+                        <h3>GitHub</h3>
+                        <p>{% if about and about.github %}{{ about.github|cut:"https://"|cut:"http://" }}{% else %}github.com/radical-vicky{% endif %}</p>
+                    </div>
+                </div>
+                
+                <!-- Resume Download Button in Contact Section -->
+                <div class="resume-download-contact">
+                    <a href="{% if about and about.resume_file %}{{ about.resume_file.url }}{% else %}#{% endif %}" class="resume-btn-contact" {% if about and about.resume_file %}download{% endif %}>
+                        <i class="bi bi-file-pdf-fill"></i>
+                        Download CV / Resume
+                    </a>
+                </div>
+            </div>
+            
+            <form class="contact-form" method="post" action="{% url 'contact' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="text" name="name" placeholder="Your Name" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" name="email" placeholder="Your Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="subject" placeholder="Subject">
+                </div>
+                <div class="form-group">
+                    <textarea name="message" rows="5" placeholder="Your Message" required></textarea>
+                </div>
+                <button type="submit">
+                    <i class="bi bi-send"></i> Send Message
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Dynamic roles from database or fallback
+    const roles = [
+        {% if about and about.title %}
+            '{{ about.title }}',
+        {% endif %}
+        'Developer',
+        'Designer',
+        'Creator',
+        'Problem Solver'
+    ];
+    
+    let roleIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    const typedElement = document.getElementById('typed');
+    
+    function typeEffect() {
+        if (!typedElement) return;
+        const currentRole = roles[roleIndex];
+        if (isDeleting) {
+            typedElement.textContent = currentRole.substring(0, charIndex - 1);
+            charIndex--;
+        } else {
+            typedElement.textContent = currentRole.substring(0, charIndex + 1);
+            charIndex++;
+        }
+        
+        if (!isDeleting && charIndex === currentRole.length) {
+            isDeleting = true;
+            setTimeout(typeEffect, 2000);
+            return;
+        }
+        
+        if (isDeleting && charIndex === 0) {
+            isDeleting = false;
+            roleIndex = (roleIndex + 1) % roles.length;
+            setTimeout(typeEffect, 500);
+            return;
+        }
+        
+        setTimeout(typeEffect, isDeleting ? 50 : 100);
+    }
+    
+    typeEffect();
+    
+    // Animate numbers
+    const counters = document.querySelectorAll('.stat-number');
+    const speed = 200;
+    
+    counters.forEach(counter => {
+        const updateCount = () => {
+            const target = parseInt(counter.getAttribute('data-count'));
+            const count = parseInt(counter.innerText);
+            const increment = target / speed;
+            
+            if (count < target) {
+                counter.innerText = Math.ceil(count + increment);
+                setTimeout(updateCount, 20);
+            } else {
+                counter.innerText = target;
+            }
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    updateCount();
+                    observer.unobserve(entry.target);
+                }
+            });
+        });
+        
+        observer.observe(counter);
+    });
+    
+    // Animate skill bars
+    const skillBars = document.querySelectorAll('.progress-bar');
+    
+    const skillObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const width = entry.target.getAttribute('data-width');
+                entry.target.style.width = width + '%';
+                skillObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    skillBars.forEach(bar => skillObserver.observe(bar));
+</script>
+{% endblock %}

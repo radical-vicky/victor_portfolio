@@ -1,0 +1,549 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+{{ block.super }}
+{{ media }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    /* GitHub-inspired dark theme */
+    :root {
+        --bg-primary: #0d1117;
+        --bg-secondary: #161b22;
+        --bg-tertiary: #21262d;
+        --border-color: #30363d;
+        --text-primary: #c9d1d9;
+        --text-secondary: #8b949e;
+        --accent: #58a6ff;
+        --accent-hover: #1f6feb;
+        --success: #2ea043;
+        --warning: #d29922;
+        --danger: #f85149;
+    }
+    
+    body {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+    }
+    
+    /* Override admin styles */
+    #header {
+        background: var(--bg-secondary) !important;
+        border-bottom: 1px solid var(--border-color) !important;
+    }
+    
+    .breadcrumbs {
+        background: var(--bg-secondary) !important;
+        border-bottom: 1px solid var(--border-color) !important;
+        color: var(--text-secondary) !important;
+    }
+    
+    .breadcrumbs a {
+        color: var(--accent) !important;
+    }
+    
+    /* Main Container */
+    .reply-main {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+    }
+    
+    /* Header */
+    .reply-header {
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .reply-header h1 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+    
+    .reply-header h1 i {
+        color: var(--accent);
+        font-size: 1.5rem;
+    }
+    
+    .reply-header p {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+    
+    /* Cards */
+    .reply-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+    
+    .card-header {
+        padding: 1rem 1.5rem;
+        background: var(--bg-tertiary);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .card-header i {
+        color: var(--accent);
+        font-size: 1.125rem;
+    }
+    
+    .card-header h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    /* Original Message */
+    .message-metadata {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .metadata-item {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .metadata-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+    
+    .metadata-value {
+        color: var(--text-primary);
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .metadata-value a {
+        color: var(--accent);
+        text-decoration: none;
+    }
+    
+    .metadata-value a:hover {
+        text-decoration: underline;
+    }
+    
+    .badge {
+        display: inline-block;
+        padding: 0.2rem 0.6rem;
+        border-radius: 2rem;
+        font-size: 0.7rem;
+        font-weight: 500;
+    }
+    
+    .badge-unread {
+        background: var(--warning);
+        color: #1a1a1a;
+    }
+    
+    .badge-read {
+        background: var(--success);
+        color: white;
+    }
+    
+    .message-content {
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .message-content-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .message-text {
+        color: var(--text-primary);
+        font-size: 0.875rem;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+    
+    /* Form Styles */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        display: block;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-secondary);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-group label .required {
+        color: var(--danger);
+        margin-left: 0.25rem;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        color: var(--text-primary);
+        font-family: inherit;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+    }
+    
+    .form-group textarea {
+        font-family: monospace;
+        resize: vertical;
+        min-height: 200px;
+    }
+    
+    .help-text {
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        margin-top: 0.5rem;
+    }
+    
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 0.5rem 0 0;
+    }
+    
+    .errorlist li {
+        color: var(--danger);
+        font-size: 0.75rem;
+    }
+    
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border: none;
+    }
+    
+    .btn-primary {
+        background: var(--accent);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: var(--accent-hover);
+        transform: translateY(-1px);
+    }
+    
+    .btn-secondary {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+    }
+    
+    .btn-secondary:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+    
+    /* Tips Section */
+    .tips-card {
+        background: rgba(88, 166, 255, 0.05);
+        border: 1px solid rgba(88, 166, 255, 0.2);
+    }
+    
+    .tips-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .tips-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        line-height: 1.5;
+    }
+    
+    .tips-list li:last-child {
+        margin-bottom: 0;
+    }
+    
+    .tips-list li i {
+        color: var(--accent);
+        font-size: 0.875rem;
+        margin-top: 0.125rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .reply-main {
+            padding: 0 1rem;
+            margin: 1rem auto;
+        }
+        
+        .reply-header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .message-metadata {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .metadata-item {
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .reply-header h1 {
+            font-size: 1.25rem;
+        }
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .reply-card {
+        animation: fadeIn 0.3s ease forwards;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+    &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+    &rsaquo; <a href="{% url opts|admin_urlname:'change' message.pk %}">{{ message.name|truncatechars:"30" }}</a>
+    &rsaquo; {% trans 'Reply' %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="reply-main">
+    <!-- Header -->
+    <div class="reply-header">
+        <h1>
+            <i class="fas fa-reply-all"></i>
+            Reply to {{ message.name }}
+        </h1>
+        <p>Respond to this message professionally</p>
+    </div>
+    
+    <!-- Original Message Card -->
+    <div class="reply-card">
+        <div class="card-header">
+            <i class="fas fa-envelope"></i>
+            <h3>Original Message</h3>
+        </div>
+        <div class="card-body">
+            <div class="message-metadata">
+                <div class="metadata-item">
+                    <span class="metadata-label">From:</span>
+                    <span class="metadata-value">{{ message.name }}</span>
+                </div>
+                <div class="metadata-item">
+                    <span class="metadata-label">Email:</span>
+                    <span class="metadata-value">
+                        <a href="mailto:{{ message.email }}">{{ message.email }}</a>
+                    </span>
+                </div>
+                <div class="metadata-item">
+                    <span class="metadata-label">Subject:</span>
+                    <span class="metadata-value">{{ message.subject }}</span>
+                </div>
+                <div class="metadata-item">
+                    <span class="metadata-label">Date:</span>
+                    <span class="metadata-value">{{ message.created_date|date:"F d, Y H:i" }}</span>
+                </div>
+                <div class="metadata-item">
+                    <span class="metadata-label">Status:</span>
+                    <span class="metadata-value">
+                        {% if not message.is_read %}
+                        <span class="badge badge-unread">Unread</span>
+                        {% else %}
+                        <span class="badge badge-read">Read</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="message-content">
+                <div class="message-content-label">
+                    <i class="fas fa-quote-left"></i>
+                    Message
+                </div>
+                <div class="message-text">
+                    {{ message.message|linebreaks }}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Reply Form Card -->
+    <div class="reply-card">
+        <div class="card-header">
+            <i class="fas fa-edit"></i>
+            <h3>Your Reply</h3>
+        </div>
+        <div class="card-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                        {% if field.field.required %}
+                        <span class="required">*</span>
+                        {% endif %}
+                    </label>
+                    {{ field }}
+                    {% if field.help_text %}
+                    <div class="help-text">{{ field.help_text }}</div>
+                    {% endif %}
+                    {% if field.errors %}
+                    <ul class="errorlist">
+                        {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                        Send Reply
+                    </button>
+                    <a href="{% url opts|admin_urlname:'change' message.pk %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Tips Card -->
+    <div class="reply-card tips-card">
+        <div class="card-header">
+            <i class="fas fa-lightbulb"></i>
+            <h3>Tips for Professional Replies</h3>
+        </div>
+        <div class="card-body">
+            <ul class="tips-list">
+                <li>
+                    <i class="fas fa-smile"></i>
+                    <span>Be polite and professional in your response</span>
+                </li>
+                <li>
+                    <i class="fas fa-question-circle"></i>
+                    <span>Address all questions or concerns raised in the original message</span>
+                </li>
+                <li>
+                    <i class="fas fa-link"></i>
+                    <span>Include relevant links or resources if applicable</span>
+                </li>
+                <li>
+                    <i class="fas fa-clock"></i>
+                    <span>Respond promptly to maintain good communication</span>
+                </li>
+                <li>
+                    <i class="fas fa-database"></i>
+                    <span>Your reply will be saved in the database for future reference</span>
+                </li>
+                <li>
+                    <i class="fas fa-envelope"></i>
+                    <span>The recipient will receive this reply via email</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

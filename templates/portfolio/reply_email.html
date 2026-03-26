@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reply to your message</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #0d1117;
+            color: #c9d1d9;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #0d1117;
+        }
+        
+        /* Header */
+        .email-header {
+            background: linear-gradient(135deg, #161b22 0%, #0d1117 100%);
+            border-bottom: 1px solid #30363d;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .email-header h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #c9d1d9, #58a6ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .email-header p {
+            color: #8b949e;
+            font-size: 14px;
+        }
+        
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #58a6ff, #bc8cff);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+        
+        .logo span {
+            font-size: 28px;
+            font-weight: bold;
+            color: #0d1117;
+        }
+        
+        /* Content */
+        .email-content {
+            padding: 40px 30px;
+            background: #161b22;
+        }
+        
+        .greeting {
+            margin-bottom: 20px;
+        }
+        
+        .greeting strong {
+            color: #58a6ff;
+        }
+        
+        .message-text {
+            color: #c9d1d9;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        /* Reply Box */
+        .reply-box {
+            background: #21262d;
+            border-left: 4px solid #58a6ff;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .reply-box h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #58a6ff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .reply-meta {
+            background: #161b22;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+        
+        .reply-meta-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-right: 20px;
+            color: #8b949e;
+        }
+        
+        .reply-meta-item strong {
+            color: #c9d1d9;
+        }
+        
+        .reply-divider {
+            height: 1px;
+            background: #30363d;
+            margin: 16px 0;
+        }
+        
+        .reply-message {
+            color: #c9d1d9;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        
+        /* Original Message */
+        .original-message {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .original-message h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .original-details {
+            margin-bottom: 16px;
+        }
+        
+        .original-detail {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-right: 20px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #8b949e;
+        }
+        
+        .original-detail strong {
+            color: #c9d1d9;
+        }
+        
+        .original-text {
+            background: #161b22;
+            padding: 16px;
+            border-radius: 6px;
+            margin-top: 12px;
+            color: #c9d1d9;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        
+        /* Signature */
+        .signature {
+            margin: 30px 0 20px;
+            padding-top: 20px;
+            border-top: 1px solid #30363d;
+        }
+        
+        .signature-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #58a6ff;
+            margin-bottom: 4px;
+        }
+        
+        .signature-title {
+            font-size: 13px;
+            color: #8b949e;
+        }
+        
+        /* Footer */
+        .email-footer {
+            padding: 30px;
+            text-align: center;
+            background: #0d1117;
+            border-top: 1px solid #30363d;
+        }
+        
+        .footer-links {
+            margin-bottom: 16px;
+        }
+        
+        .footer-links a {
+            color: #8b949e;
+            text-decoration: none;
+            font-size: 12px;
+            margin: 0 12px;
+            transition: color 0.2s;
+        }
+        
+        .footer-links a:hover {
+            color: #58a6ff;
+        }
+        
+        .copyright {
+            font-size: 11px;
+            color: #6e7681;
+        }
+        
+        .disclaimer {
+            font-size: 11px;
+            color: #6e7681;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #30363d;
+        }
+        
+        /* Buttons */
+        .button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #58a6ff;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s;
+            margin-top: 20px;
+        }
+        
+        .button:hover {
+            background: #1f6feb;
+            transform: translateY(-1px);
+        }
+        
+        /* Icons */
+        .icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        /* Responsive */
+        @media (max-width: 600px) {
+            .email-header {
+                padding: 30px 20px;
+            }
+            
+            .email-content {
+                padding: 30px 20px;
+            }
+            
+            .reply-box {
+                padding: 20px;
+            }
+            
+            .reply-meta-item {
+                display: block;
+                margin-bottom: 8px;
+            }
+            
+            .original-detail {
+                display: block;
+                margin-bottom: 8px;
+            }
+            
+            .footer-links a {
+                display: inline-block;
+                margin: 0 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="email-header">
+            <div class="logo">
+                <span>&lt;/&gt;</span>
+            </div>
+            <h2>Reply to Your Message</h2>
+            <p>Thank you for reaching out!</p>
+        </div>
+        
+        <!-- Content -->
+        <div class="email-content">
+            <div class="greeting">
+                <p>Hello <strong>{{ message.name }}</strong>,</p>
+            </div>
+            
+            <div class="message-text">
+                <p>Thank you for contacting me. I appreciate your interest and have carefully reviewed your message. Here's my response:</p>
+            </div>
+            
+            <!-- Reply Box -->
+            <div class="reply-box">
+                <h3>
+                    <span>📧</span> Reply from Me
+                </h3>
+                <div class="reply-meta">
+                    <span class="reply-meta-item">
+                        <strong>Subject:</strong> {{ reply_subject }}
+                    </span>
+                    <span class="reply-meta-item">
+                        <strong>Date:</strong> {{ reply_date|date:"F d, Y H:i" }}
+                    </span>
+                </div>
+                <div class="reply-divider"></div>
+                <div class="reply-message">
+                    {{ reply_message|linebreaks }}
+                </div>
+            </div>
+            
+            <!-- Original Message -->
+            <div class="original-message">
+                <h4>Your Original Message</h4>
+                <div class="original-details">
+                    <span class="original-detail">
+                        <strong>Subject:</strong> {{ message.subject }}
+                    </span>
+                    <span class="original-detail">
+                        <strong>Sent:</strong> {{ message.created_date|date:"F d, Y H:i" }}
+                    </span>
+                </div>
+                <div class="original-text">
+                    {{ message.message|linebreaks }}
+                </div>
+            </div>
+            
+            <!-- Closing -->
+            <div class="message-text">
+                <p>If you have any further questions or need clarification, feel free to reply to this email. I'm happy to help!</p>
+            </div>
+            
+            <!-- Signature -->
+            <div class="signature">
+                <div class="signature-name">
+                    {{ settings.FROM_NAME|default:"Portfolio Owner" }}
+                </div>
+                <div class="signature-title">
+                    {% if about and about.title %}{{ about.title }}{% else %}Developer & Creator{% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="email-footer">
+            <div class="footer-links">
+                {% if about and about.github %}
+                <a href="{{ about.github }}" target="_blank">GitHub</a>
+                {% endif %}
+                {% if about and about.linkedin %}
+                <a href="{{ about.linkedin }}" target="_blank">LinkedIn</a>
+                {% endif %}
+                <a href="{{ site_url|default:'#' }}" target="_blank">Portfolio</a>
+            </div>
+            <div class="copyright">
+                &copy; {% now "Y" %} {{ settings.FROM_NAME|default:"Portfolio" }}. All rights reserved.
+            </div>
+            <div class="disclaimer">
+                This email was sent in response to your message from my portfolio website. 
+                If you didn't expect this reply, please ignore this email.
+            </div>
+        </div>
+    </div>
+</body>
+</html>

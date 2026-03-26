@@ -1,0 +1,689 @@
+{% extends 'portfolio/base.html' %}
+{% load static %}
+
+{% block title %}Notification Dashboard - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Dashboard Container */
+    .dashboard-container {
+        padding: 2rem 0;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    /* Header */
+    .dashboard-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .dashboard-header h1 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .dashboard-header h1 i {
+        color: var(--accent);
+        font-size: 1.5rem;
+    }
+    
+    .dashboard-header p {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+    
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1.25rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-green));
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+    
+    .stat-card:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-2px);
+        border-color: var(--accent);
+    }
+    
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+    
+    .stat-header h3 {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+    
+    .stat-icon {
+        font-size: 1.5rem;
+        color: var(--accent);
+        opacity: 0.7;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+    
+    .stat-trend {
+        font-size: 0.7rem;
+        color: var(--accent-green);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    /* Messages Section */
+    .messages-section {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+    
+    .section-header {
+        padding: 1.25rem 1.5rem;
+        background: var(--bg-tertiary);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .section-header h2 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .section-header h2 i {
+        color: var(--accent);
+    }
+    
+    .message-count {
+        background: var(--accent);
+        color: white;
+        padding: 0.2rem 0.6rem;
+        border-radius: 2rem;
+        font-size: 0.7rem;
+        font-weight: 500;
+    }
+    
+    .filter-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .filter-btn {
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        padding: 0.4rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.7rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .filter-btn:hover,
+    .filter-btn.active {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+    }
+    
+    /* Messages List */
+    .messages-list {
+        max-height: 600px;
+        overflow-y: auto;
+    }
+    
+    .message-item {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        transition: background 0.2s ease;
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .message-item:hover {
+        background: var(--bg-tertiary);
+    }
+    
+    .message-item.unread {
+        background: rgba(88, 166, 255, 0.03);
+        border-left: 3px solid var(--accent);
+    }
+    
+    .message-avatar {
+        width: 48px;
+        height: 48px;
+        background: var(--bg-tertiary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .message-avatar i {
+        font-size: 1.25rem;
+        color: var(--accent);
+    }
+    
+    .message-content {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .message-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .message-sender {
+        font-weight: 600;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .message-badge {
+        font-size: 0.65rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 2rem;
+        font-weight: 500;
+    }
+    
+    .message-badge.unread {
+        background: var(--accent);
+        color: white;
+    }
+    
+    .message-badge.replied {
+        background: var(--accent-green);
+        color: white;
+    }
+    
+    .message-badge.read {
+        background: var(--bg-tertiary);
+        color: var(--text-secondary);
+    }
+    
+    .message-date {
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .message-subject {
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .message-preview {
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        line-height: 1.5;
+        margin-bottom: 0.5rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .message-email {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .message-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+        flex-wrap: wrap;
+    }
+    
+    .btn-action {
+        padding: 0.35rem 0.85rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        font-size: 0.7rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        cursor: pointer;
+        border: none;
+    }
+    
+    .btn-view {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+    }
+    
+    .btn-view:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+    
+    .btn-reply {
+        background: var(--accent);
+        color: white;
+    }
+    
+    .btn-reply:hover {
+        background: var(--accent-hover);
+        transform: translateY(-1px);
+    }
+    
+    .btn-read {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+    }
+    
+    .btn-read:hover {
+        border-color: var(--accent-green);
+        color: var(--accent-green);
+    }
+    
+    /* Quick Stats */
+    .quick-stats {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .quick-stats h3 {
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .quick-stats h3 i {
+        color: var(--accent);
+    }
+    
+    .response-time {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+    }
+    
+    .response-time i {
+        color: var(--accent-green);
+    }
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-secondary);
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 1rem 0;
+        }
+        
+        .dashboard-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .message-item {
+            flex-direction: column;
+            padding: 1rem;
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 1rem;
+        }
+        
+        .filter-buttons {
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+        
+        .quick-stats {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .message-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .message-actions {
+            width: 100%;
+            justify-content: flex-start;
+        }
+        
+        .btn-action {
+            flex: 1;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div>
+                <h1>
+                    <i class="bi bi-bell-fill"></i>
+                    Notification Dashboard
+                </h1>
+                <p>Monitor and manage all incoming messages</p>
+            </div>
+            <a href="/admin/" class="btn-action btn-view" style="padding: 0.5rem 1rem;">
+                <i class="bi bi-gear"></i>
+                Admin Panel
+            </a>
+        </div>
+        
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <h3>Total Messages</h3>
+                    <i class="bi bi-envelope-paper stat-icon"></i>
+                </div>
+                <div class="stat-number">{{ total_messages|default:"0" }}</div>
+                <div class="stat-trend">
+                    <i class="bi bi-chat-dots"></i>
+                    <span>All inquiries</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <h3>Unread Messages</h3>
+                    <i class="bi bi-bell-fill stat-icon"></i>
+                </div>
+                <div class="stat-number">{{ unread_messages|default:"0" }}</div>
+                <div class="stat-trend">
+                    <i class="bi bi-clock"></i>
+                    <span>Awaiting response</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <h3>Read Messages</h3>
+                    <i class="bi bi-check-circle-fill stat-icon"></i>
+                </div>
+                <div class="stat-number">{{ read_messages|default:"0" }}</div>
+                <div class="stat-trend">
+                    <i class="bi bi-check-lg"></i>
+                    <span>Already read</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <h3>Replied Messages</h3>
+                    <i class="bi bi-reply-all-fill stat-icon"></i>
+                </div>
+                <div class="stat-number">{{ replied_messages|default:"0" }}</div>
+                <div class="stat-trend">
+                    <i class="bi bi-check-double"></i>
+                    <span>Responded to</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Messages Section -->
+        <div class="messages-section">
+            <div class="section-header">
+                <h2>
+                    <i class="bi bi-envelope-paper-fill"></i>
+                    Recent Messages
+                    <span class="message-count">{{ messages_list|length }}</span>
+                </h2>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="unread">Unread</button>
+                    <button class="filter-btn" data-filter="read">Read</button>
+                    <button class="filter-btn" data-filter="replied">Replied</button>
+                </div>
+            </div>
+            
+            <div class="messages-list" id="messagesList">
+                {% for message in messages_list %}
+                <div class="message-item {% if not message.is_read %}unread{% endif %}" data-status="
+                    {% if message.is_replied %}replied
+                    {% elif message.is_read %}read
+                    {% else %}unread{% endif %}">
+                    <div class="message-avatar">
+                        <i class="bi bi-person-circle"></i>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <div class="message-sender">
+                                <strong>{{ message.name }}</strong>
+                                {% if not message.is_read %}
+                                <span class="message-badge unread">New</span>
+                                {% endif %}
+                                {% if message.is_replied %}
+                                <span class="message-badge replied">Replied</span>
+                                {% elif message.is_read %}
+                                <span class="message-badge read">Read</span>
+                                {% endif %}
+                            </div>
+                            <div class="message-date">
+                                <i class="bi bi-calendar3"></i>
+                                {{ message.created_date|date:"M d, Y H:i" }}
+                            </div>
+                        </div>
+                        <div class="message-subject">
+                            {{ message.subject|default:"No subject" }}
+                        </div>
+                        <div class="message-preview">
+                            {{ message.message|truncatechars:120 }}
+                        </div>
+                        <div class="message-email">
+                            <i class="bi bi-envelope"></i>
+                            {{ message.email }}
+                        </div>
+                        <div class="message-actions">
+                            <a href="/admin/portfolio/contactmessage/{{ message.id }}/change/" class="btn-action btn-view" target="_blank">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                            <a href="/admin/portfolio/contactmessage/{{ message.id }}/reply/" class="btn-action btn-reply" target="_blank">
+                                <i class="bi bi-reply-fill"></i> Reply
+                            </a>
+                            {% if not message.is_read %}
+                            <form method="post" action="{% url 'mark_message_read' message.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-action btn-read">
+                                    <i class="bi bi-check-lg"></i> Mark Read
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <p>No messages yet</p>
+                    <small>Messages from the contact form will appear here</small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+            <h3>
+                <i class="bi bi-graph-up"></i>
+                Quick Stats
+            </h3>
+            <div class="response-time">
+                <i class="bi bi-clock-history"></i>
+                <span>Response Rate: 
+                    {% if total_messages > 0 %}
+                        {{ replied_messages|floatformat:0 }}%
+                    {% else %}
+                        0%
+                    {% endif %}
+                </span>
+            </div>
+            <div class="response-time">
+                <i class="bi bi-envelope-check"></i>
+                <span>Unread: {{ unread_messages }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Filter functionality
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const messageItems = document.querySelectorAll('.message-item');
+    
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Update active state
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            const filter = btn.getAttribute('data-filter');
+            
+            // Filter messages
+            messageItems.forEach(item => {
+                if (filter === 'all') {
+                    item.style.display = 'flex';
+                } else {
+                    const status = item.getAttribute('data-status');
+                    if (status === filter) {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                }
+            });
+        });
+    });
+    
+    // Auto-refresh every 60 seconds
+    let refreshInterval = setInterval(() => {
+        location.reload();
+    }, 60000);
+    
+    // Stop auto-refresh on user interaction
+    document.addEventListener('click', () => clearInterval(refreshInterval));
+    document.addEventListener('keydown', () => clearInterval(refreshInterval));
+</script>
+{% endblock %}

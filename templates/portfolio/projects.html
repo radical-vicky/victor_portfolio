@@ -1,0 +1,319 @@
+{% extends 'portfolio/base.html' %}
+{% load static %}
+
+{% block title %}Projects - {% if about %}{{ about.name }}{% else %}Portfolio{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .projects-header {
+        padding: 4rem 0;
+        background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+        border-bottom: 1px solid var(--border-color);
+        text-align: center;
+    }
+    
+    .projects-header h1 {
+        font-size: clamp(2rem, 5vw, 2.5rem);
+        font-weight: 700;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, var(--text-primary), var(--accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .projects-header p {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .projects-stats {
+        background: var(--bg-secondary);
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--border-color);
+        text-align: center;
+    }
+    
+    .projects-stats span {
+        color: var(--accent);
+        font-weight: 600;
+    }
+    
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 2rem;
+        padding: 4rem 0;
+    }
+    
+    .project-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .project-card:hover {
+        transform: translateY(-6px);
+        border-color: var(--accent);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    }
+    
+    .project-image-container {
+        position: relative;
+        height: 220px;
+        overflow: hidden;
+    }
+    
+    .project-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .project-card:hover .project-image {
+        transform: scale(1.05);
+    }
+    
+    .project-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(88, 166, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        gap: 1rem;
+    }
+    
+    .project-card:hover .project-overlay {
+        opacity: 1;
+    }
+    
+    .project-overlay a {
+        background: white;
+        color: var(--accent);
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .project-overlay a:hover {
+        transform: scale(1.1);
+        background: var(--accent);
+        color: white;
+    }
+    
+    .project-content {
+        padding: 1.5rem;
+        flex: 1;
+    }
+    
+    .project-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: var(--text-primary);
+    }
+    
+    .project-card:hover .project-title {
+        color: var(--accent);
+    }
+    
+    .project-description {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+    
+    .project-tech {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .tech-tag {
+        background: var(--bg-tertiary);
+        padding: 0.25rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+    }
+    
+    .project-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .project-date {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .read-more {
+        color: var(--accent);
+        text-decoration: none;
+        font-size: 0.75rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        transition: gap 0.3s ease;
+    }
+    
+    .read-more:hover {
+        gap: 0.5rem;
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin: 2rem 0 4rem;
+    }
+    
+    .page-link {
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .page-link:hover,
+    .page-link.active {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+    }
+    
+    @media (max-width: 768px) {
+        .projects-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            padding: 2rem 0;
+        }
+        
+        .projects-header {
+            padding: 2rem 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="projects-header">
+    <div class="container">
+        <h1>My Projects</h1>
+        <p>A showcase of my work and creative solutions</p>
+    </div>
+</section>
+
+<div class="projects-stats">
+    <div class="container">
+        <p>Showing <span>{{ projects|length }}</span> of <span>{{ total_projects }}</span> projects</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="projects-grid">
+        {% for project in projects %}
+        <div class="project-card" onclick="window.location.href='{% url 'project_detail' project.id %}'">
+            <div class="project-image-container">
+                {% if project.image %}
+                <img src="{{ project.image.url }}" alt="{{ project.title }}" class="project-image">
+                {% else %}
+                <div class="project-image" style="background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-folder" style="font-size: 3rem; color: var(--text-secondary);"></i>
+                </div>
+                {% endif %}
+                <div class="project-overlay">
+                    {% if project.github_link %}
+                    <a href="{{ project.github_link }}" target="_blank" onclick="event.stopPropagation();"><i class="bi bi-github"></i></a>
+                    {% endif %}
+                    {% if project.live_link %}
+                    <a href="{{ project.live_link }}" target="_blank" onclick="event.stopPropagation();"><i class="bi bi-box-arrow-up-right"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="project-content">
+                <h3 class="project-title">{{ project.title }}</h3>
+                <p class="project-description">{{ project.description|truncatechars:100 }}</p>
+                <div class="project-tech">
+                    {% with techs=project.technologies|stringformat:"s" %}
+                        {% for tech in techs.split|slice:":3" %}
+                            {% if tech != "," and tech != "" %}
+                                <span class="tech-tag">{{ tech|cut:","|truncatechars:15 }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    {% endwith %}
+                </div>
+                <div class="project-footer">
+                    <div class="project-date">
+                        <i class="bi bi-calendar3"></i>
+                        <span>{{ project.created_date|date:"M Y" }}</span>
+                    </div>
+                    <a href="{% url 'project_detail' project.id %}" class="read-more" onclick="event.stopPropagation();">
+                        Read More <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state" style="grid-column: 1/-1; text-align: center; padding: 4rem;">
+            <i class="bi bi-folder2-open" style="font-size: 3rem; color: var(--text-muted);"></i>
+            <h3>No Projects Yet</h3>
+            <p>Projects will appear here once added.</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% if projects.has_other_pages %}
+    <div class="pagination">
+        {% if projects.has_previous %}
+        <a href="?page={{ projects.previous_page_number }}" class="page-link"><i class="bi bi-chevron-left"></i></a>
+        {% endif %}
+        
+        {% for num in projects.paginator.page_range %}
+            {% if projects.number == num %}
+            <span class="page-link active">{{ num }}</span>
+            {% elif num > projects.number|add:'-3' and num < projects.number|add:'3' %}
+            <a href="?page={{ num }}" class="page-link">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+        
+        {% if projects.has_next %}
+        <a href="?page={{ projects.next_page_number }}" class="page-link"><i class="bi bi-chevron-right"></i></a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

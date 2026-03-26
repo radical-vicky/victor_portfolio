@@ -1,0 +1,539 @@
+{% extends 'portfolio/base.html' %}
+{% load static %}
+
+{% block title %}{{ project.title }} - {% if about %}{{ about.name }}{% else %}Portfolio{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .project-detail {
+        padding: 4rem 0;
+    }
+    
+    /* Back Button */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--accent);
+        text-decoration: none;
+        margin-bottom: 2rem;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .back-link:hover {
+        gap: 0.75rem;
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+        transform: translateX(-4px);
+    }
+    
+    /* Header Section */
+    .project-header {
+        margin-bottom: 2rem;
+    }
+    
+    .project-title {
+        font-size: clamp(2rem, 5vw, 3rem);
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+        background: linear-gradient(135deg, var(--text-primary), var(--accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: inline-block;
+    }
+    
+    /* Meta Information */
+    .project-meta {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+        margin: 1.5rem 0;
+        padding: 1rem 0;
+        border-top: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        padding: 0.25rem 0.75rem;
+        background: var(--bg-tertiary);
+        border-radius: 2rem;
+        transition: all 0.2s ease;
+    }
+    
+    .meta-item:hover {
+        background: var(--bg-secondary);
+        transform: translateY(-2px);
+    }
+    
+    .meta-item i {
+        color: var(--accent);
+        font-size: 1rem;
+    }
+    
+    .meta-item a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    
+    .meta-item a:hover {
+        color: var(--accent);
+    }
+    
+    /* Project Image */
+    .project-image-container {
+        position: relative;
+        margin: 2rem 0;
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .project-image-full {
+        width: 100%;
+        max-height: 500px;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .project-image-container:hover .project-image-full {
+        transform: scale(1.02);
+    }
+    
+    .image-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+        padding: 2rem;
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+    }
+    
+    .project-image-container:hover .image-overlay {
+        transform: translateY(0);
+    }
+    
+    /* Description */
+    .project-description-full {
+        font-size: 1rem;
+        line-height: 1.8;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        background: var(--bg-secondary);
+        padding: 2rem;
+        border-radius: 1rem;
+        border: 1px solid var(--border-color);
+    }
+    
+    /* Tech Section */
+    .project-tech-section {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+    }
+    
+    .project-tech-section:hover {
+        border-color: var(--accent);
+        transform: translateY(-2px);
+    }
+    
+    .project-tech-section h3 {
+        font-size: 1.125rem;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .project-tech-section h3 i {
+        color: var(--accent);
+    }
+    
+    .tech-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+    
+    .tech-item {
+        background: var(--bg-tertiary);
+        padding: 0.5rem 1.25rem;
+        border-radius: 2rem;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        transition: all 0.2s ease;
+        border: 1px solid var(--border-color);
+    }
+    
+    .tech-item:hover {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+        transform: translateY(-2px);
+    }
+    
+    /* Action Buttons */
+    .project-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 3rem;
+    }
+    
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.875rem 1.75rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-decoration: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+        color: white;
+        border: none;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(88, 166, 255, 0.4);
+    }
+    
+    .btn-secondary {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+    }
+    
+    .btn-secondary:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+        transform: translateY(-2px);
+    }
+    
+    /* Related Projects */
+    .related-projects {
+        margin-top: 4rem;
+        padding-top: 3rem;
+        border-top: 2px solid var(--border-color);
+    }
+    
+    .related-projects h3 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .related-projects h3 i {
+        color: var(--accent);
+    }
+    
+    .related-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .related-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .related-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+    
+    .related-card:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .related-card:hover {
+        transform: translateY(-6px);
+        border-color: var(--accent);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+    
+    .related-card h4 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+        transition: color 0.2s;
+    }
+    
+    .related-card:hover h4 {
+        color: var(--accent);
+    }
+    
+    .related-card p {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+        margin-bottom: 1rem;
+    }
+    
+    .related-card .tech-preview {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    
+    .related-card .preview-tag {
+        background: var(--bg-tertiary);
+        padding: 0.2rem 0.6rem;
+        border-radius: 2rem;
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animate-fade-up {
+        animation: fadeInUp 0.6s ease forwards;
+    }
+    
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .project-detail {
+            padding: 2rem 0;
+        }
+        
+        .project-meta {
+            gap: 1rem;
+        }
+        
+        .project-actions {
+            flex-direction: column;
+        }
+        
+        .project-actions .btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .related-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .project-description-full {
+            padding: 1.5rem;
+        }
+        
+        .back-link {
+            font-size: 0.875rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .project-meta {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .meta-item {
+            width: fit-content;
+        }
+        
+        .project-tech-section {
+            padding: 1rem;
+        }
+        
+        .tech-item {
+            font-size: 0.7rem;
+            padding: 0.4rem 0.8rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="project-detail">
+        <!-- Back Button -->
+        <a href="{% url 'projects' %}" class="back-link animate-fade-up">
+            <i class="bi bi-arrow-left"></i> Back to Projects
+        </a>
+        
+        <!-- Header -->
+        <div class="project-header animate-fade-up delay-1">
+            <h1 class="project-title">{{ project.title }}</h1>
+        </div>
+        
+        <!-- Meta Information -->
+        <div class="project-meta animate-fade-up delay-2">
+            <div class="meta-item">
+                <i class="bi bi-calendar3"></i>
+                <span>{{ project.created_date|date:"F d, Y" }}</span>
+            </div>
+            {% if project.github_link %}
+            <div class="meta-item">
+                <i class="bi bi-github"></i>
+                <a href="{{ project.github_link }}" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
+            </div>
+            {% endif %}
+            {% if project.live_link %}
+            <div class="meta-item">
+                <i class="bi bi-box-arrow-up-right"></i>
+                <a href="{{ project.live_link }}" target="_blank" rel="noopener noreferrer">Live Demo</a>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Project Image -->
+        {% if project.image %}
+        <div class="project-image-container animate-fade-up delay-3">
+            <img src="{{ project.image.url }}" alt="{{ project.title }}" class="project-image-full">
+            <div class="image-overlay">
+                <small style="color: white;">{{ project.title }} - Featured Image</small>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Description -->
+        <div class="project-description-full animate-fade-up delay-4">
+            {{ project.description|linebreaks }}
+        </div>
+        
+        <!-- Technologies Section -->
+        <div class="project-tech-section animate-fade-up delay-4">
+            <h3>
+                <i class="bi bi-code-square"></i>
+                Technologies Used
+            </h3>
+            <div class="tech-list">
+                {% with techs=project.technologies|stringformat:"s" %}
+                    {% for tech in techs.split %}
+                        {% if tech != "," and tech != "" %}
+                            <span class="tech-item">{{ tech|cut:"," }}</span>
+                        {% endif %}
+                    {% endfor %}
+                {% endwith %}
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="project-actions animate-fade-up delay-4">
+            {% if project.github_link %}
+            <a href="{{ project.github_link }}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+                <i class="bi bi-github"></i> View Source Code
+            </a>
+            {% endif %}
+            {% if project.live_link %}
+            <a href="{{ project.live_link }}" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">
+                <i class="bi bi-box-arrow-up-right"></i> Live Demo
+            </a>
+            {% endif %}
+        </div>
+        
+        <!-- Related Projects -->
+        {% if related_projects %}
+        <div class="related-projects animate-fade-up">
+            <h3>
+                <i class="bi bi-diagram-3"></i>
+                Related Projects
+            </h3>
+            <div class="related-grid">
+                {% for related in related_projects %}
+                <div class="related-card" onclick="window.location.href='{% url 'project_detail' related.id %}'">
+                    <h4>{{ related.title }}</h4>
+                    <p>{{ related.description|truncatechars:100 }}</p>
+                    <div class="tech-preview">
+                        {% with techs=related.technologies|stringformat:"s" %}
+                            {% for tech in techs.split|slice:":3" %}
+                                {% if tech != "," and tech != "" %}
+                                    <span class="preview-tag">{{ tech|cut:","|truncatechars:12 }}</span>
+                                {% endif %}
+                            {% endfor %}
+                        {% endwith %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Smooth scroll to top when page loads
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Add intersection observer for scroll animations
+    const animatedElements = document.querySelectorAll('.animate-fade-up');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+    
+    animatedElements.forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        observer.observe(el);
+    });
+</script>
+{% endblock %}

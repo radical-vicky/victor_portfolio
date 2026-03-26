@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>{% block title %}Portfolio{% endblock %}</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* GitHub-inspired color scheme */
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --border-color: #30363d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --accent: #58a6ff;
+            --accent-hover: #1f6feb;
+            --accent-green: #2ea043;
+            --accent-red: #f85149;
+            --success: #2ea043;
+            --danger: #f85149;
+            --warning: #d29922;
+        }
+
+        /* Mobile Menu Button */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1001;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            cursor: pointer;
+            color: var(--text-primary);
+            font-size: 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--accent);
+        }
+
+        /* Layout */
+        .wrapper {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem 1.5rem;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar.closed {
+            transform: translateX(-100%);
+        }
+
+        .profile-img {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-img img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border-color);
+            transition: transform 0.3s ease;
+        }
+
+        .profile-img img:hover {
+            transform: scale(1.05);
+        }
+
+        .profile-placeholder {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            font-size: 2.5rem;
+            font-weight: 500;
+            color: var(--accent);
+            border: 2px solid var(--border-color);
+        }
+
+        .sitename {
+            text-align: center;
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            word-break: break-word;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .social-links a {
+            color: var(--text-secondary);
+            font-size: 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        /* Navigation */
+        .navmenu ul {
+            list-style: none;
+        }
+
+        .navmenu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .navmenu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .navmenu a i {
+            font-size: 1.25rem;
+        }
+
+        .navmenu a:hover,
+        .navmenu a.active {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+            width: 100%;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            width: 100%;
+        }
+
+        /* Section spacing */
+        section {
+            padding: 5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .section-title h2 {
+            font-size: clamp(1.75rem, 4vw, 2.25rem);
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .section-title p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Overlay for mobile */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(2px);
+            z-index: 999;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(88, 166, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            section {
+                padding: 3rem 0;
+            }
+
+            .profile-img img,
+            .profile-placeholder {
+                width: 100px;
+                height: 100px;
+            }
+
+            .sitename {
+                font-size: 1rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Mobile Menu Toggle Button -->
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="profile-img">
+                {% if about and about.profile_image %}
+                    <img src="{{ about.profile_image.url }}" alt="{{ about.name }}">
+                {% else %}
+                    <div class="profile-placeholder">
+                        {% if about %}{{ about.name|slice:":1" }}{% else %}P{% endif %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <h1 class="sitename">{% if about %}{{ about.name }}{% else %}Portfolio{% endif %}</h1>
+            
+            <div class="social-links">
+                {% if about and about.github %}
+                <a href="{{ about.github }}" target="_blank" rel="noopener noreferrer"><i class="bi bi-github"></i></a>
+                {% endif %}
+                {% if about and about.linkedin %}
+                <a href="{{ about.linkedin }}" target="_blank" rel="noopener noreferrer"><i class="bi bi-linkedin"></i></a>
+                {% endif %}
+                {% if about and about.twitter %}
+                <a href="{{ about.twitter }}" target="_blank" rel="noopener noreferrer"><i class="bi bi-twitter-x"></i></a>
+                {% endif %}
+            </div>
+            
+   <nav class="navmenu">
+    <ul>
+        <li><a href="{% url 'home' %}"><i class="bi bi-house"></i> Home</a></li>
+        <li><a href="{% url 'projects' %}"><i class="bi bi-grid-3x3-gap-fill"></i> Projects</a></li>
+        <li><a href="{% url 'about' %}"><i class="bi bi-person"></i> About</a></li>
+        <li><a href="{% url 'testimonials' %}"><i class="bi bi-chat-dots"></i> Testimonials</a></li>
+        <li><a href="{% url 'contact' %}"><i class="bi bi-envelope"></i> Contact</a></li>
+        {% if user.is_staff or user.is_superuser %}
+        <li><a href="{% url 'dashboard' %}"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+        {% endif %}
+    </ul>
+</nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script>
+        // Mobile menu functionality
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        
+        function toggleMenu() {
+            sidebar.classList.toggle('open');
+            sidebarOverlay.classList.toggle('active');
+            const icon = menuToggle.querySelector('i');
+            if (sidebar.classList.contains('open')) {
+                icon.classList.remove('bi-list');
+                icon.classList.add('bi-x');
+            } else {
+                icon.classList.remove('bi-x');
+                icon.classList.add('bi-list');
+            }
+        }
+        
+        function closeMenu() {
+            sidebar.classList.remove('open');
+            sidebarOverlay.classList.remove('active');
+            const icon = menuToggle.querySelector('i');
+            icon.classList.remove('bi-x');
+            icon.classList.add('bi-list');
+        }
+        
+        menuToggle.addEventListener('click', toggleMenu);
+        sidebarOverlay.addEventListener('click', closeMenu);
+        
+        // Close menu when clicking a nav link on mobile
+        const navLinks = document.querySelectorAll('.navmenu a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    closeMenu();
+                }
+            });
+        });
+        
+        // Active navigation highlighting
+        const currentPath = window.location.pathname;
+        navLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href === currentPath || 
+                (currentPath === '/' && href === '{% url "home" %}') ||
+                (currentPath === '/projects/' && href === '{% url "projects" %}') ||
+                (currentPath === '/about/' && href === '{% url "about" %}') ||
+                (currentPath === '/contact/' && href === '{% url "contact" %}') ||
+                (currentPath === '/dashboard/' && href === '{% url "dashboard" %}')) {
+                link.classList.add('active');
+            }
+        });
+        
+        // Handle resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                closeMenu();
+            }
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+
+    <!-- Lightbox Modal for Profile Images -->
+<div id="imageLightbox" class="lightbox-modal">
+    <span class="lightbox-close">&times;</span>
+    <img class="lightbox-content" id="lightboxImage">
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+</div>
+
+<style>
+    /* Lightbox Modal Styles */
+    .lightbox-modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.95);
+        backdrop-filter: blur(10px);
+        animation: fadeIn 0.3s ease;
+    }
+    
+    .lightbox-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+        border-radius: 8px;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        animation: zoomIn 0.3s ease;
+    }
+    
+    .lightbox-close {
+        position: absolute;
+        top: 20px;
+        right: 35px;
+        color: #f1f1f1;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 10000;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.5);
+    }
+    
+    .lightbox-close:hover {
+        color: var(--accent);
+        transform: rotate(90deg);
+        background: rgba(0, 0, 0, 0.8);
+    }
+    
+    .lightbox-caption {
+        position: absolute;
+        bottom: 30px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        color: white;
+        font-size: 14px;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(5px);
+        margin: 0 auto;
+        width: fit-content;
+        max-width: 80%;
+        border-radius: 8px;
+        margin-left: auto;
+        margin-right: auto;
+        pointer-events: none;
+    }
+    
+    /* Lightbox Navigation Arrows */
+    .lightbox-prev,
+    .lightbox-next {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 40px;
+        font-weight: bold;
+        color: white;
+        cursor: pointer;
+        padding: 20px;
+        transition: all 0.3s ease;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+    }
+    
+    .lightbox-prev {
+        left: 30px;
+    }
+    
+    .lightbox-next {
+        right: 30px;
+    }
+    
+    .lightbox-prev:hover,
+    .lightbox-next:hover {
+        background: var(--accent);
+        transform: translateY(-50%) scale(1.1);
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes zoomIn {
+        from {
+            transform: translate(-50%, -50%) scale(0.9);
+            opacity: 0;
+        }
+        to {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+    }
+    
+    /* Make profile images clickable */
+    .profile-img img,
+    .about-img img,
+    .author-avatar img,
+    .testimonial-card .author-avatar img,
+    .about-image img {
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .profile-img img:hover,
+    .about-img img:hover,
+    .author-avatar img:hover,
+    .testimonial-card .author-avatar img:hover,
+    .about-image img:hover {
+        opacity: 0.9;
+        transform: scale(1.02);
+        box-shadow: 0 0 0 3px var(--accent);
+    }
+</style>
+
+<script>
+    // Lightbox functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('imageLightbox');
+        const modalImg = document.getElementById('lightboxImage');
+        const captionText = document.getElementById('lightboxCaption');
+        const closeBtn = document.querySelector('.lightbox-close');
+        
+        let currentImages = [];
+        let currentIndex = 0;
+        
+        // Function to open lightbox
+        window.openLightbox = function(imgElement, imagesList = null, index = 0) {
+            modal.style.display = 'block';
+            modalImg.src = imgElement.src;
+            captionText.innerHTML = imgElement.alt || 'Profile Image';
+            
+            // Set up navigation if multiple images
+            if (imagesList && imagesList.length > 1) {
+                currentImages = imagesList;
+                currentIndex = index;
+                showNavigation();
+            } else {
+                hideNavigation();
+            }
+        }
+        
+        function showNavigation() {
+            let prevBtn = document.querySelector('.lightbox-prev');
+            let nextBtn = document.querySelector('.lightbox-next');
+            
+            if (!prevBtn) {
+                prevBtn = document.createElement('div');
+                prevBtn.className = 'lightbox-prev';
+                prevBtn.innerHTML = '&#10094;';
+                modal.appendChild(prevBtn);
+                
+                nextBtn = document.createElement('div');
+                nextBtn.className = 'lightbox-next';
+                nextBtn.innerHTML = '&#10095;';
+                modal.appendChild(nextBtn);
+            }
+            
+            prevBtn.style.display = 'flex';
+            nextBtn.style.display = 'flex';
+            
+            prevBtn.onclick = function(e) {
+                e.stopPropagation();
+                currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
+                updateLightboxImage();
+            };
+            
+            nextBtn.onclick = function(e) {
+                e.stopPropagation();
+                currentIndex = (currentIndex + 1) % currentImages.length;
+                updateLightboxImage();
+            };
+        }
+        
+        function hideNavigation() {
+            const prevBtn = document.querySelector('.lightbox-prev');
+            const nextBtn = document.querySelector('.lightbox-next');
+            if (prevBtn) prevBtn.style.display = 'none';
+            if (nextBtn) nextBtn.style.display = 'none';
+        }
+        
+        function updateLightboxImage() {
+            if (currentImages[currentIndex]) {
+                modalImg.src = currentImages[currentIndex].src;
+                captionText.innerHTML = currentImages[currentIndex].alt || 'Image';
+            }
+        }
+        
+        // Close modal
+        function closeLightbox() {
+            modal.style.display = 'none';
+            hideNavigation();
+        }
+        
+        closeBtn.onclick = closeLightbox;
+        
+        // Close on click outside
+        modal.onclick = function(e) {
+            if (e.target === modal) {
+                closeLightbox();
+            }
+        };
+        
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal.style.display === 'block') {
+                closeLightbox();
+            }
+            if (e.key === 'ArrowLeft' && modal.style.display === 'block') {
+                const prevBtn = document.querySelector('.lightbox-prev');
+                if (prevBtn && prevBtn.style.display !== 'none') prevBtn.onclick();
+            }
+            if (e.key === 'ArrowRight' && modal.style.display === 'block') {
+                const nextBtn = document.querySelector('.lightbox-next');
+                if (nextBtn && nextBtn.style.display !== 'none') nextBtn.onclick();
+            }
+        });
+        
+        // Make all profile images clickable
+        function makeImagesClickable() {
+            // Profile image in sidebar
+            const profileImg = document.querySelector('.profile-img img');
+            if (profileImg) {
+                profileImg.style.cursor = 'pointer';
+                profileImg.onclick = function() {
+                    openLightbox(this);
+                };
+            }
+            
+            // About page image
+            const aboutImg = document.querySelector('.about-img img');
+            if (aboutImg) {
+                aboutImg.style.cursor = 'pointer';
+                aboutImg.onclick = function() {
+                    openLightbox(this);
+                };
+            }
+            
+            // All testimonial avatars
+            const testimonialAvatars = document.querySelectorAll('.author-avatar img');
+            if (testimonialAvatars.length > 0) {
+                const imagesList = Array.from(testimonialAvatars);
+                testimonialAvatars.forEach((img, idx) => {
+                    img.style.cursor = 'pointer';
+                    img.onclick = function() {
+                        openLightbox(this, imagesList, idx);
+                    };
+                });
+            }
+        }
+        
+        // Run after page loads and after dynamic content
+        makeImagesClickable();
+        
+        // Observer for dynamically added images
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.addedNodes.length) {
+                    makeImagesClickable();
+                }
+            });
+        });
+        
+        observer.observe(document.body, { childList: true, subtree: true });
+    });
+</script>
+</body>
+</html>

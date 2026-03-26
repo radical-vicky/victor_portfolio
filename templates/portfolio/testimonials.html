@@ -1,0 +1,701 @@
+{% extends 'portfolio/base.html' %}
+{% load static %}
+
+{% block title %}Testimonials - {% if about %}{{ about.name }}{% else %}Portfolio{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero Section */
+    .testimonials-hero {
+        padding: 5rem 0;
+        background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+        border-bottom: 1px solid var(--border-color);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .testimonials-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 20% 50%, rgba(88, 166, 255, 0.05), transparent 50%);
+        pointer-events: none;
+    }
+    
+    .testimonials-hero h1 {
+        font-size: clamp(2rem, 5vw, 3rem);
+        font-weight: 700;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, var(--text-primary), var(--accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: fadeInUp 0.6s ease;
+    }
+    
+    .testimonials-hero p {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto;
+        animation: fadeInUp 0.6s ease 0.1s forwards;
+        opacity: 0;
+        transform: translateY(20px);
+        animation-fill-mode: forwards;
+    }
+    
+    /* Stats Bar */
+    .stats-bar {
+        background: var(--bg-secondary);
+        padding: 1.5rem 0;
+        border-bottom: 1px solid var(--border-color);
+        text-align: center;
+        position: relative;
+    }
+    
+    .stats-bar-content {
+        display: flex;
+        justify-content: center;
+        align-items: baseline;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .stats-bar span {
+        color: var(--accent);
+        font-weight: 800;
+        font-size: 2rem;
+        display: inline-block;
+        animation: countUp 1s ease-out;
+    }
+    
+    .stats-bar p {
+        color: var(--text-secondary);
+        font-size: 1rem;
+    }
+    
+    /* Testimonials Grid */
+    .testimonials-section {
+        padding: 5rem 0;
+    }
+    
+    .testimonials-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 2rem;
+    }
+    
+    /* Testimonial Card */
+    .testimonial-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1.75rem;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        cursor: pointer;
+    }
+    
+    .testimonial-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--accent), transparent);
+        transform: scaleX(0);
+        transition: transform 0.4s ease;
+        transform-origin: left;
+    }
+    
+    .testimonial-card:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .testimonial-card:hover {
+        transform: translateY(-8px);
+        border-color: var(--accent);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Quote Icon */
+    .quote-icon {
+        color: var(--accent);
+        font-size: 2rem;
+        opacity: 0.4;
+        margin-bottom: 1rem;
+        display: block;
+        transition: opacity 0.3s ease;
+    }
+    
+    .testimonial-card:hover .quote-icon {
+        opacity: 0.8;
+    }
+    
+    .testimonial-text {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        line-height: 1.7;
+        margin-bottom: 1.5rem;
+        font-style: italic;
+        flex: 1;
+        transition: color 0.3s ease;
+    }
+    
+    .testimonial-card:hover .testimonial-text {
+        color: var(--text-primary);
+    }
+    
+    /* Author Section */
+    .testimonial-author {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+        margin-top: 0.5rem;
+        transition: border-color 0.3s ease;
+    }
+    
+    .testimonial-card:hover .testimonial-author {
+        border-top-color: var(--accent);
+    }
+    
+    .author-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--bg-tertiary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .testimonial-card:hover .author-avatar {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 2px var(--accent);
+    }
+    
+    .author-avatar i {
+        font-size: 1.5rem;
+        color: var(--accent);
+    }
+    
+    .author-avatar img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .author-info h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        color: var(--text-primary);
+        transition: color 0.3s ease;
+    }
+    
+    .testimonial-card:hover .author-info h4 {
+        color: var(--accent);
+    }
+    
+    .author-info p {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+    }
+    
+    /* Rating Stars */
+    .rating {
+        display: flex;
+        gap: 0.25rem;
+        margin-bottom: 1rem;
+    }
+    
+    .rating i {
+        color: #d29922;
+        font-size: 0.875rem;
+        transition: transform 0.2s ease;
+    }
+    
+    .testimonial-card:hover .rating i {
+        transform: scale(1.1);
+    }
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem;
+        background: var(--bg-secondary);
+        border-radius: 1rem;
+        border: 1px solid var(--border-color);
+        grid-column: 1/-1;
+        transition: all 0.3s ease;
+    }
+    
+    .empty-state:hover {
+        border-color: var(--accent);
+        transform: translateY(-4px);
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+        display: block;
+        animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 0.5;
+            transform: scale(1);
+        }
+        50% {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+    }
+    
+    .empty-state h3 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+    
+    .empty-state p {
+        color: var(--text-secondary);
+    }
+    
+    /* Submit Button */
+    .submit-container {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .btn-submit {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+        padding: 0.875rem 2rem;
+        border-radius: 3rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-submit::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(88, 166, 255, 0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+    
+    .btn-submit:hover::before {
+        width: 300px;
+        height: 300px;
+    }
+    
+    .btn-submit:hover {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(88, 166, 255, 0.3);
+    }
+    
+    .btn-submit:active {
+        transform: translateY(-1px);
+    }
+    
+    /* CTA Section */
+    .cta-section {
+        background: var(--bg-secondary);
+        padding: 4rem 0;
+        text-align: center;
+        border-top: 1px solid var(--border-color);
+        margin-top: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+    
+    .cta-section h2 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+    }
+    
+    .cta-section p {
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    /* Loading Skeleton */
+    .skeleton-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1.75rem;
+        height: 100%;
+    }
+    
+    .skeleton-quote {
+        width: 40px;
+        height: 30px;
+        background: var(--bg-tertiary);
+        border-radius: 4px;
+        margin-bottom: 1rem;
+        animation: shimmer 1.5s infinite;
+    }
+    
+    .skeleton-text {
+        height: 80px;
+        background: var(--bg-tertiary);
+        border-radius: 4px;
+        margin-bottom: 1rem;
+        animation: shimmer 1.5s infinite;
+    }
+    
+    .skeleton-author {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+    
+    .skeleton-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--bg-tertiary);
+        animation: shimmer 1.5s infinite;
+    }
+    
+    .skeleton-info {
+        flex: 1;
+    }
+    
+    .skeleton-name {
+        height: 16px;
+        width: 120px;
+        background: var(--bg-tertiary);
+        border-radius: 4px;
+        margin-bottom: 8px;
+        animation: shimmer 1.5s infinite;
+    }
+    
+    .skeleton-title {
+        height: 12px;
+        width: 80px;
+        background: var(--bg-tertiary);
+        border-radius: 4px;
+        animation: shimmer 1.5s infinite;
+    }
+    
+    @keyframes shimmer {
+        0% {
+            opacity: 0.5;
+        }
+        50% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 0.5;
+        }
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes countUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .testimonial-card {
+        animation: fadeInUp 0.5s ease forwards;
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    
+    .testimonial-card:nth-child(1) { animation-delay: 0.05s; animation-fill-mode: forwards; }
+    .testimonial-card:nth-child(2) { animation-delay: 0.1s; animation-fill-mode: forwards; }
+    .testimonial-card:nth-child(3) { animation-delay: 0.15s; animation-fill-mode: forwards; }
+    .testimonial-card:nth-child(4) { animation-delay: 0.2s; animation-fill-mode: forwards; }
+    .testimonial-card:nth-child(5) { animation-delay: 0.25s; animation-fill-mode: forwards; }
+    .testimonial-card:nth-child(6) { animation-delay: 0.3s; animation-fill-mode: forwards; }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+        .testimonials-grid {
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 1.5rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .testimonials-hero {
+            padding: 3rem 0;
+        }
+        
+        .testimonials-section {
+            padding: 3rem 0;
+        }
+        
+        .testimonials-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        
+        .cta-section {
+            padding: 3rem 0;
+        }
+        
+        .cta-section h2 {
+            font-size: 1.5rem;
+        }
+        
+        .stats-bar span {
+            font-size: 1.5rem;
+        }
+        
+        .btn-submit {
+            width: 90%;
+            justify-content: center;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .testimonial-card {
+            padding: 1.25rem;
+        }
+        
+        .testimonial-text {
+            font-size: 0.875rem;
+        }
+        
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="testimonials-hero">
+    <div class="container">
+        <h1>Client Testimonials</h1>
+        <p>What people say about my work and collaboration</p>
+    </div>
+</section>
+
+<!-- Stats Bar -->
+<div class="stats-bar">
+    <div class="container">
+        <div class="stats-bar-content">
+            <span id="testimonialCount">0</span>
+            <p>happy client{{ testimonials|pluralize }} trust my work</p>
+        </div>
+    </div>
+</div>
+
+<!-- Submit Testimonial Button -->
+<div class="submit-container" style="margin-top: 20px;">
+    <div class="container">
+        <a href="{% url 'submit_testimonial' %}" class="btn-submit">
+            <i class="bi bi-pencil-square"></i> Share Your Experience
+        </a>
+    </div>
+</div>
+
+<!-- Testimonials Grid -->
+<section class="testimonials-section">
+    <div class="container">
+        <div class="testimonials-grid" id="testimonialsGrid">
+            {% for testimonial in testimonials %}
+            <div class="testimonial-card" data-testimonial-id="{{ testimonial.id }}">
+                <i class="bi bi-quote quote-icon"></i>
+                {% if testimonial.rating %}
+                <div class="rating">
+                    {% for i in "12345"|make_list %}
+                        {% if forloop.counter <= testimonial.rating %}
+                            <i class="bi bi-star-fill"></i>
+                        {% else %}
+                            <i class="bi bi-star"></i>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <p class="testimonial-text">"{{ testimonial.testimonial }}"</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">
+                        {% if testimonial.image %}
+                            <img src="{{ testimonial.image.url }}" alt="{{ testimonial.name }}" loading="lazy">
+                        {% else %}
+                            <i class="bi bi-person-circle"></i>
+                        {% endif %}
+                    </div>
+                    <div class="author-info">
+                        <h4>{{ testimonial.name }}</h4>
+                        <p>{{ testimonial.position }}{% if testimonial.company %}, {{ testimonial.company }}{% endif %}</p>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <i class="bi bi-chat-dots"></i>
+                <h3>No Testimonials Yet</h3>
+                <p>Be the first to share your experience working with me!</p>
+                <div style="margin-top: 1.5rem;">
+                    <a href="{% url 'submit_testimonial' %}" class="btn-submit" style="display: inline-flex;">
+                        <i class="bi bi-pencil-square"></i> Write a Testimonial
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <h2>Ready to Work Together?</h2>
+        <p>Let's create something amazing together. I'd love to hear about your project.</p>
+        <a href="{% url 'contact' %}" class="btn btn-primary">
+            Start a Project <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animate count up for testimonials
+    document.addEventListener('DOMContentLoaded', function() {
+        const countElement = document.getElementById('testimonialCount');
+        if (countElement) {
+            const targetCount = {{ testimonials|length }};
+            let currentCount = 0;
+            const duration = 1000;
+            const increment = targetCount / (duration / 16);
+            
+            const counter = setInterval(() => {
+                currentCount += increment;
+                if (currentCount >= targetCount) {
+                    countElement.textContent = targetCount;
+                    clearInterval(counter);
+                } else {
+                    countElement.textContent = Math.floor(currentCount);
+                }
+            }, 16);
+        }
+        
+        // Add intersection observer for card animations
+        const cards = document.querySelectorAll('.testimonial-card');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        cards.forEach(card => observer.observe(card));
+    });
+    
+    // Add ripple effect to buttons
+    const buttons = document.querySelectorAll('.btn-submit, .btn-primary');
+    buttons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            const ripple = document.createElement('span');
+            ripple.classList.add('ripple');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            ripple.style.width = ripple.style.height = `${size}px`;
+            ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
+            ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
+            ripple.style.position = 'absolute';
+            ripple.style.borderRadius = '50%';
+            ripple.style.backgroundColor = 'rgba(255, 255, 255, 0.5';
+            ripple.style.pointerEvents = 'none';
+            ripple.style.animation = 'ripple 0.6s linear';
+            this.style.position = 'relative';
+            this.style.overflow = 'hidden';
+            this.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
+        });
+    });
+    
+    // Add ripple animation style
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes ripple {
+            0% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+{% endblock %}
