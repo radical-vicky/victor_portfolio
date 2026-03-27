@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,23 +21,27 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-sn%+$25qi^3ewztyy=i2m_!4)y7=8jf+ed&5n+bbpzcyl4vq8l'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-sn%+$25qi^3ewztyy=i2m_!4)y7=8jf+ed&5n+bbpzcyl4vq8l')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True  # Keep True for local development
 
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    '.onrender.com',  # Allows any subdomain on onrender.com
-    'galaxystore1.onrender.com',  # Your actual Render domain
-    'cryptoconsultx-3.onrender.com',
-    'signalx.render.com',
-    'galaxy-store.onrender.com',  # Alternative domain
+    'victor-portfolio-4aub.onrender.com',  # Your Render domain
+    '*.onrender.com',  # Allows any subdomain on onrender.com
+]
+
+# CSRF Trusted Origins for Render
+CSRF_TRUSTED_ORIGINS = [
+    'https://victor-portfolio-4aub.onrender.com',
+    'https://*.onrender.com',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
 ]
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -47,8 +52,19 @@ INSTALLED_APPS = [
     'portfolio',
 ]
 
+# Middleware - Conditionally add whitenoise for production
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+]
+
+# Only add WhiteNoise if it's installed (for production)
+try:
+    import whitenoise
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+except ImportError:
+    pass
+
+MIDDLEWARE += [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -66,6 +82,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -123,27 +140,70 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+
+# Create the static directory if it doesn't exist
+STATIC_DIR = BASE_DIR / 'static'
+if not STATIC_DIR.exists():
+    STATIC_DIR.mkdir(exist_ok=True)
+
+STATICFILES_DIRS = [STATIC_DIR]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Only use WhiteNoise storage if whitenoise is installed
+try:
+    import whitenoise
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+except ImportError:
+    pass
 
 # Media files (Uploaded images)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Add these lines at the bottom of your settings.py file
+# Create media directory if it doesn't exist
+MEDIA_DIR = BASE_DIR / 'media'
+if not MEDIA_DIR.exists():
+    MEDIA_DIR.mkdir(exist_ok=True)
 
-# Email settings (for contact form)
-CONTACT_EMAIL = 'entreprenuerridicular@gmail.com.com'  # Replace with your email address
-DEFAULT_FROM_EMAIL = 'entreprenuerridicular@gmail.com'  # Or your email
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  
+# Email settings
+# For development - prints emails to console
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# For production, use SMTP (example with Gmail)
+# For production, uncomment and configure these:
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_HOST = 'smtp.gmail.com'
 # EMAIL_PORT = 587
 # EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'your-email@gmail.com'
-# EMAIL_HOST_PASSWORD = 'your-app-password'  # Use app password for Gmail
-# DEFAULT_FROM_EMAIL = 'your-email@gmail.com'# For development - prints emails to console
+# EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+# EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+# DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@yourdomain.com')
+
+CONTACT_EMAIL = 'entreprenuerridicular@gmail.com'
+DEFAULT_FROM_EMAIL = 'entreprenuerridicular@gmail.com'
+
+# Security settings for production (only when DEBUG is False)
+if not DEBUG:
+    # HTTPS settings
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    
+    # HSTS settings
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+# Admin customization
+ADMIN_SITE_HEADER = "Portfolio Administration"
+ADMIN_SITE_TITLE = "Portfolio Admin"
+ADMIN_INDEX_TITLE = "Welcome to Portfolio Administration"
+
+# Login URL
+LOGIN_URL = '/admin/login/'
+LOGIN_REDIRECT_URL = '/dashboard/'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
