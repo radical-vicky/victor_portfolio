@@ -1,51 +1,62 @@
-{% extends "admin/index.html" %}
+{% extends "admin/base_site.html" %}
 {% load i18n static %}
 
 {% block extrastyle %}
-{{ block.super }}
 <style>
-    /* Dark Theme for Admin Dashboard */
     :root {
-        --admin-bg: #0d1117;
-        --admin-secondary: #161b22;
-        --admin-tertiary: #21262d;
-        --admin-border: #30363d;
-        --admin-text: #c9d1d9;
-        --admin-text-secondary: #8b949e;
-        --admin-accent: #58a6ff;
-        --admin-accent-hover: #1f6feb;
-        --admin-success: #2ea043;
-        --admin-danger: #f85149;
-        --admin-warning: #d29922;
+        --bg-secondary: #161b22;
+        --bg-tertiary: #21262d;
+        --border: #30363d;
+        --text-primary: #c9d1d9;
+        --text-secondary: #8b949e;
+        --accent: #58a6ff;
+        --accent-hover: #1f6feb;
+        --success: #2ea043;
     }
     
-    /* Dashboard Container */
-    .dashboard {
-        background: var(--admin-bg);
-    }
-    
-    #content {
-        background: var(--admin-bg);
-    }
-    
-    /* App Module Styling */
-    .module {
-        background: var(--admin-secondary);
-        border: 1px solid var(--admin-border);
-        border-radius: 12px;
-        overflow: hidden;
+    /* Stats Cards */
+    .dashboard-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
         margin-bottom: 2rem;
     }
     
+    .stat-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--accent);
+    }
+    
+    .stat-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+    }
+    
+    /* Modules */
+    .module {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+    
     .module h2 {
-        background: var(--admin-tertiary);
-        color: var(--admin-text);
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
         font-size: 1rem;
-        font-weight: 600;
         padding: 0.75rem 1rem;
         margin: 0;
-        border-bottom: 1px solid var(--admin-border);
-        letter-spacing: -0.2px;
+        border-bottom: 1px solid var(--border);
     }
     
     .module table {
@@ -54,188 +65,62 @@
     }
     
     .module th {
-        background: var(--admin-tertiary);
-        color: var(--admin-text-secondary);
-        font-weight: 500;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        text-align: left;
         padding: 0.75rem 1rem;
-        border-bottom: 1px solid var(--admin-border);
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        font-weight: 500;
+        border-bottom: 1px solid var(--border);
     }
     
     .module td {
         padding: 0.75rem 1rem;
-        border-bottom: 1px solid var(--admin-border);
-        color: var(--admin-text);
-        font-size: 0.875rem;
+        border-bottom: 1px solid var(--border);
     }
     
     .module tr:last-child td {
         border-bottom: none;
     }
     
-    .module tr:hover td {
-        background: rgba(88, 166, 255, 0.05);
-    }
-    
-    /* Links */
-    .module a:link, .module a:visited {
-        color: var(--admin-accent);
-        text-decoration: none;
-        transition: color 0.2s;
-    }
-    
-    .module a:hover {
-        color: var(--admin-accent-hover);
-        text-decoration: underline;
-    }
-    
-    /* Add/Change Links */
     .addlink, .changelink {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.25rem;
-        padding: 0.25rem 0.5rem;
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
         border-radius: 4px;
         font-size: 0.75rem;
-        font-weight: 500;
+        text-decoration: none;
     }
     
     .addlink {
-        background: var(--admin-success);
-        color: white !important;
-    }
-    
-    .addlink:hover {
-        background: #1f6e43;
-        text-decoration: none !important;
+        background: var(--success);
+        color: white;
     }
     
     .changelink {
-        background: var(--admin-accent);
-        color: white !important;
-    }
-    
-    .changelink:hover {
-        background: var(--admin-accent-hover);
-        text-decoration: none !important;
+        background: var(--accent);
+        color: white;
     }
     
     /* Recent Actions */
-    #recent-actions-module {
-        background: var(--admin-secondary);
-        border: 1px solid var(--admin-border);
-        border-radius: 12px;
-        overflow: hidden;
-    }
-    
-    #recent-actions-module h2 {
-        background: var(--admin-tertiary);
-        color: var(--admin-text);
-        font-size: 1rem;
-        font-weight: 600;
-        padding: 0.75rem 1rem;
-        margin: 0;
-        border-bottom: 1px solid var(--admin-border);
-    }
-    
     .actionlist {
+        list-style: none;
         padding: 0;
         margin: 0;
     }
     
     .actionlist li {
         padding: 0.75rem 1rem;
-        border-bottom: 1px solid var(--admin-border);
-        color: var(--admin-text-secondary);
+        border-bottom: 1px solid var(--border);
         font-size: 0.875rem;
-        list-style: none;
     }
     
-    .actionlist li:last-child {
-        border-bottom: none;
-    }
-    
-    .actionlist li:hover {
-        background: rgba(88, 166, 255, 0.05);
-    }
-    
-    .actionlist a {
-        color: var(--admin-accent);
+    .actionlist li a {
+        color: var(--accent);
         text-decoration: none;
-        font-weight: 500;
     }
     
-    .actionlist a:hover {
-        color: var(--admin-accent-hover);
-        text-decoration: underline;
-    }
-    
-    /* Dashboard Stats Cards */
-    .dashboard-stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-    
-    .stat-card {
-        background: var(--admin-secondary);
-        border: 1px solid var(--admin-border);
-        border-radius: 12px;
-        padding: 1.25rem;
-        transition: all 0.3s ease;
-    }
-    
-    .stat-card:hover {
-        transform: translateY(-2px);
-        border-color: var(--admin-accent);
-    }
-    
-    .stat-card .stat-number {
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--admin-accent);
-        display: block;
-        margin-bottom: 0.25rem;
-    }
-    
-    .stat-card .stat-label {
-        color: var(--admin-text-secondary);
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .stat-card i {
-        float: right;
-        font-size: 2rem;
-        opacity: 0.3;
-        color: var(--admin-accent);
-    }
-    
-    /* App Grid */
-    .app-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-    
-    /* Responsive */
     @media (max-width: 768px) {
-        .app-list {
-            grid-template-columns: 1fr;
-        }
-        
         .dashboard-stats {
             grid-template-columns: 1fr;
-        }
-        
-        .module td {
-            font-size: 0.75rem;
-            padding: 0.5rem;
         }
     }
 </style>
@@ -243,49 +128,41 @@
 
 {% block content %}
 <div id="content-main">
-    <!-- Dashboard Stats -->
+    <!-- Stats Cards -->
     <div class="dashboard-stats">
         <div class="stat-card">
-            <i class="bi bi-folder"></i>
-            <span class="stat-number">{{ total_projects|default:"0" }}</span>
-            <div class="stat-label">Total Projects</div>
+            <div class="stat-number">{{ total_projects|default:"0" }}</div>
+            <div class="stat-label">Projects</div>
         </div>
         <div class="stat-card">
-            <i class="bi bi-envelope"></i>
-            <span class="stat-number">{{ total_messages|default:"0" }}</span>
-            <div class="stat-label">Messages Received</div>
+            <div class="stat-number">{{ total_messages|default:"0" }}</div>
+            <div class="stat-label">Messages</div>
         </div>
         <div class="stat-card">
-            <i class="bi bi-code-square"></i>
-            <span class="stat-number">{{ total_skills|default:"0" }}</span>
-            <div class="stat-label">Skills Listed</div>
+            <div class="stat-number">{{ total_skills|default:"0" }}</div>
+            <div class="stat-label">Skills</div>
         </div>
         <div class="stat-card">
-            <i class="bi bi-chat-dots"></i>
-            <span class="stat-number">{{ total_testimonials|default:"0" }}</span>
+            <div class="stat-number">{{ total_testimonials|default:"0" }}</div>
             <div class="stat-label">Testimonials</div>
         </div>
     </div>
     
-    <!-- Authentication and Authorization Section -->
+    <!-- Authentication Section -->
     <div class="module">
-        <h2>Authentication and Authorization</h2>
+        <h2>Authentication</h2>
         <table>
             <thead>
-                <tr>
-                    <th>Model name</th>
-                    <th>Add link</th>
-                    <th>Change or view list link</th>
-                </tr>
+                <tr><th>Model</th><th>Add</th><th>Change</th></tr>
             </thead>
             <tbody>
                 <tr>
-                    <td><strong>Groups</strong></td>
+                    <td>Groups</td>
                     <td><a href="{% url 'admin:auth_group_add' %}" class="addlink">Add</a></td>
                     <td><a href="{% url 'admin:auth_group_changelist' %}" class="changelink">Change</a></td>
                 </tr>
                 <tr>
-                    <td><strong>Users</strong></td>
+                    <td>Users</td>
                     <td><a href="{% url 'admin:auth_user_add' %}" class="addlink">Add</a></td>
                     <td><a href="{% url 'admin:auth_user_changelist' %}" class="changelink">Change</a></td>
                 </tr>
@@ -298,70 +175,40 @@
         <h2>Portfolio</h2>
         <table>
             <thead>
-                <tr>
-                    <th>Model name</th>
-                    <th>Add link</th>
-                    <th>Change or view list link</th>
-                </tr>
+                <tr><th>Model</th><th>Add</th><th>Change</th></tr>
             </thead>
             <tbody>
-                <tr>
-                    <td><strong>About</strong></td>
-                    <td>-</td>
-                    <td><a href="{% url 'admin:portfolio_about_changelist' %}" class="changelink">Change</a></td>
-                </tr>
-                <tr>
-                    <td><strong>Contact Messages</strong></td>
-                    <td>-</td>
-                    <td><a href="{% url 'admin:portfolio_contactmessage_changelist' %}" class="changelink">Change</a></td>
-                </tr>
-                <tr>
-                    <td><strong>Projects</strong></td>
-                    <td><a href="{% url 'admin:portfolio_project_add' %}" class="addlink">Add</a></td>
-                    <td><a href="{% url 'admin:portfolio_project_changelist' %}" class="changelink">Change</a></td>
-                </tr>
-                <tr>
-                    <td><strong>Skills</strong></td>
-                    <td><a href="{% url 'admin:portfolio_skill_add' %}" class="addlink">Add</a></td>
-                    <td><a href="{% url 'admin:portfolio_skill_changelist' %}" class="changelink">Change</a></td>
-                </tr>
-                <tr>
-                    <td><strong>Testimonials</strong></td>
-                    <td><a href="{% url 'admin:portfolio_testimonial_add' %}" class="addlink">Add</a></td>
-                    <td><a href="{% url 'admin:portfolio_testimonial_changelist' %}" class="changelink">Change</a></td>
-                </tr>
+                <tr><td>About</td><td>-</td><td><a href="{% url 'admin:portfolio_about_changelist' %}" class="changelink">Change</a></td></tr>
+                <tr><td>Contact Messages</td><td>-</td><td><a href="{% url 'admin:portfolio_contactmessage_changelist' %}" class="changelink">Change</a></td></tr>
+                <tr><td>Projects</td><td><a href="{% url 'admin:portfolio_project_add' %}" class="addlink">Add</a></td><td><a href="{% url 'admin:portfolio_project_changelist' %}" class="changelink">Change</a></td></tr>
+                <tr><td>Skills</td><td><a href="{% url 'admin:portfolio_skill_add' %}" class="addlink">Add</a></td><td><a href="{% url 'admin:portfolio_skill_changelist' %}" class="changelink">Change</a></td></tr>
+                <tr><td>Testimonials</td><td><a href="{% url 'admin:portfolio_testimonial_add' %}" class="addlink">Add</a></td><td><a href="{% url 'admin:portfolio_testimonial_changelist' %}" class="changelink">Change</a></td></tr>
             </tbody>
         </table>
     </div>
 </div>
 
-<!-- Recent Actions -->
 <div id="content-related">
-    <div class="module" id="recent-actions-module">
-        <h2>{% translate 'Recent actions' %}</h2>
-        <h3>{% translate 'My actions' %}</h3>
+    <div class="module">
+        <h2>Recent Actions</h2>
         {% load log %}
         {% get_admin_log 10 as admin_log for_user user %}
-        {% if not admin_log %}
-        <p>{% translate 'None available' %}</p>
-        {% else %}
+        {% if admin_log %}
         <ul class="actionlist">
             {% for entry in admin_log %}
-            <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">
-                {% if entry.is_deletion or not entry.get_admin_url %}
-                    {{ entry.object_repr }}
-                {% else %}
+            <li>
+                {% if entry.is_addition or entry.is_change %}
                     <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+                {% else %}
+                    {{ entry.object_repr }}
                 {% endif %}
                 <br>
-                {% if entry.content_type %}
-                    <span class="mini quiet">{% filter capfirst %}{{ entry.content_type.name }}{% endfilter %}</span>
-                {% else %}
-                    <span class="mini quiet">{% translate 'Unknown content' %}</span>
-                {% endif %}
+                <small>{{ entry.content_type.name|capfirst }}</small>
             </li>
             {% endfor %}
         </ul>
+        {% else %}
+        <p>None available</p>
         {% endif %}
     </div>
 </div>
