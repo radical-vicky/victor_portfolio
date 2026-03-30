@@ -32,8 +32,9 @@ DEBUG = True  # Keep True for local development
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    'victor-portfolio-4aub.onrender.com',  # Your Render domain
-    '*.onrender.com',  # Allows any subdomain on onrender.com
+    'victor-portfolio-4aub.onrender.com',
+    'victor-portfolio-7cdl.onrender.com',  # Add your new domain
+    '.onrender.com',  # This allows ANY onrender.com subdomain
 ]
 
 # CSRF Trusted Origins for Render
